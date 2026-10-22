@@ -396,6 +396,17 @@ input.code{text-transform:uppercase;letter-spacing:.3em;text-align:center;font-s
 .eq.hi{background:#0f3d24;border-color:#7ee2a0;color:#c9ffd9}
 .tcenter.allin .phase{color:#ffb35c;font-weight:800;animation:pulse 1.2s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.55}}
+
+/* v7 */
+.whoGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
+.who{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 4px;border-radius:12px;background:rgba(255,255,255,.05);border:2px solid transparent;color:var(--ink);cursor:pointer;min-width:0}
+.who b{font-size:12px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.who small{font-size:11px;color:var(--muted)}
+.who.on{border-color:var(--gold);background:rgba(227,181,76,.14)}
+.amtGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%}
+.amtGrid button{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 2px;font:800 13px var(--body);cursor:pointer}
+.amtGrid button:active{transform:scale(.95)}.amtGrid button.on{background:var(--gold);color:#1a1205;border-color:var(--gold)}
+.reqrow .row{flex-wrap:nowrap}.reqrow .row input{flex:1;min-width:0}
+.mebtn{background:none;border:0;padding:0;cursor:pointer;border-radius:50%}
 </style>
 </head>
 <body>
@@ -971,7 +982,7 @@ function handle(pid,a){
       if(!t)return;const s=t.seats[seatOf(t,pid)];if(!s)return;C.reqs=(C.reqs||[]).filter(r=>!(r.pid===pid&&r.tid===t.id));
       if(t.tour){const T=C.tours.find(x=>x.id===t.tour);if(!T||s.stack>0||inH(s)||T.level>=T.rebuyLv)return;
         C.reqs.push({id:(C.rq=(C.rq||0)+1),pid,tid:t.id,amt:T.stack,kind:'trebuy',at:Date.now()})}
-      else{const amt=Math.round(t.buyin*(+a.f||1));if(![.5,1,2].includes(+a.f||1))return;C.reqs.push({id:(C.rq=(C.rq||0)+1),pid,tid:t.id,amt,kind:'chips',at:Date.now()})}
+      else{let amt;if(a.amt!=null){amt=Math.floor(+a.amt);if(!(amt>=1&&amt<=1e6))return}else{amt=Math.round(t.buyin*(+a.f||1));if(![.5,1,2].includes(+a.f||1))return}C.reqs.push({id:(C.rq=(C.rq||0)+1),pid,tid:t.id,amt,kind:'chips',at:Date.now()})}
       pushLog(t,'🙋 '+pname(pid)+' pidió fichas al anfitrión');break;}
     case 'reqcancel':{C.reqs=(C.reqs||[]).filter(r=>!(r.id===a.rid&&r.pid===pid));break;}
     case 'reqok':case 'reqno':{
@@ -1217,6 +1228,7 @@ function renderHome(){
       <button class="link" data-a="adminOff">Quitar el modo administrador de este dispositivo</button></section>`
     :ui.adminAsk?`<section class="panel"><h2>🔑 Administrador</h2><div class="row"><input id="admIn" placeholder="Clave" autocomplete="off" autocapitalize="characters"><button class="btn" data-a="adminTry">Entrar</button></div>${ui.adminErr?'<p class="err">Clave incorrecta.</p>':''}</section>`:''}
     <button class="btn ghost" data-a="rules">📖 Reglas del póker</button>
+    <p class="muted center small">Versión ${APP_VER}</p>
     ${isAdminDev||ui.adminAsk?'':'<button class="link center" data-a="adminAsk">🔑 Soy el administrador</button>'}
   </div>${ui.rules?rulesHtml():''}${ui.receipt?receiptHtml():''}`;
   const ci=$('codeIn');if(ci){ci.addEventListener('keydown',e=>{if(e.key==='Enter')clickAct('join')});const q=new URLSearchParams(location.search).get('club');if(q&&!ci.value)ci.value=q.toUpperCase()}
@@ -1245,7 +1257,7 @@ function renderAccount(){
       ${ui.picErr?'<p class="err">No se pudo abrir esa imagen. Prueba con otra.</p>':''}</div>`;
   view.innerHTML=`<div class="home">
     ${mode==='new'?`<div class="hero"><div class="suits"><span>♠</span><span class="r">♥</span><span>♣</span><span class="r">♦</span></div><h1>Club de Póker</h1><p>Crea tu cuenta. Se queda guardada en este celular y te reconocen en cualquier club.</p></div>`
-      :`<header class="lhead"><button class="btn sm ghost" data-a="acctBack">← Volver</button><b class="brand">👤 Mi perfil</b><span></span></header>`}
+      :`<header class="lhead"><button class="btn sm ghost" data-a="acctBack">← Volver</button><b class="brand">👤 Mi perfil</b><small class="muted">v${APP_VER}</small></header>`}
     <section class="panel"><div class="preview">${avH(K==='photo'&&!d.pic?{...d,kind:'face'}:d,'xl')}<b>${esc(d.name)||'Tu nombre'}</b></div>
       <label class="fld"><span>Nombre</span><input id="acName" maxlength="14" placeholder="¿Cómo te llamas?" value="${esc(d.name)}" autocomplete="nickname"></label>
       <div class="lbl">Tu imagen</div>
@@ -1329,7 +1341,7 @@ function renderLobby(){
     </article>`}).join('');
   view.innerHTML=`<div class="lobby">
     <header class="lhead"><div><div class="brand">♠ Club de Póker</div><div class="muted">Club <b class="mono">${esc(V.code)}</b> · ${online} conectados</div></div>
-      <button class="btn sm" data-a="invite">➕ Invitar</button></header>
+      <div class="row"><button class="btn sm" data-a="invite">➕ Invitar</button><button class="mebtn" data-a="profile" aria-label="Mi perfil">${avH(acct||V.players[me],'')}</button></div></header>
     ${myTablesBar()}
     <nav class="tabs"><button class="${ui.tab==='mesas'?'on':''}" data-a="tab" data-v="mesas">Mesas (${V.tables.filter(t=>!t.tour).length})</button><button class="${ui.tab==='torneos'?'on':''}" data-a="tab" data-v="torneos">🏆 Torneos${(V.tours||[]).some(T=>T.status==='run')?' •':''}</button><button class="${ui.tab==='gente'?'on':''}" data-a="tab" data-v="gente">📊 Balance</button><button data-a="rules">📖 Reglas</button></nav>
     ${V.players[me]&&V.players[me].house?'<div class="house">🖥️ Modo mesa: este dispositivo lleva el club. Déjalo conectado, con la pantalla encendida y esta página abierta.</div>':''}
@@ -1519,8 +1531,9 @@ function reqsHtml(){
   return `<div class="modal"><div class="mbox"><header><h2>🙋 Solicitudes de fichas</h2><button class="btn sm ghost" data-a="reqsClose">Cerrar</button></header>
     <div class="rules">${R.length?R.map(r=>{const t=V.tables.find(x=>x.id===r.tid);const F=t&&t.tour?fmt:$m;const s=t&&t.seats.find(x=>x&&x.pid===r.pid);const unit=t?t.buyin:r.amt;
       return `<div class="reqrow"><div><b>${esc(V.players[r.pid]?.name||'?')}</b><small>${esc(t?t.name:'')} · tiene ${F(s?s.stack:0)} · ${r.kind==='trebuy'?'recompra de torneo':'pide'} <b>${F(r.amt)}</b></small></div>
-        <div class="row">${r.kind==='trebuy'?`<button class="btn sm gold" data-a="reqok" data-r="${r.id}">Aprobar</button>`:[...new Set([r.amt,Math.round(unit/2),unit,unit*2])].sort((a,b)=>a-b).map(x=>`<button class="btn sm ${x===r.amt?'gold':'ghost'}" data-a="reqok" data-r="${r.id}" data-amt="${x}">+${F(x)}</button>`).join('')}
-        <button class="btn sm red" data-a="reqno" data-r="${r.id}">No</button></div></div>`}).join(''):'<p class="muted center">No hay solicitudes pendientes.</p>'}
+        ${r.kind==='trebuy'?`<div class="row"><button class="btn sm gold" data-a="reqok" data-r="${r.id}">Aprobar</button><button class="btn sm red" data-a="reqno" data-r="${r.id}">No</button></div>`
+        :`<div class="amtGrid">${[...new Set([r.amt,...AMTS])].sort((a,b)=>a-b).map(x=>`<button class="${x===r.amt?'on':''}" data-a="reqok" data-r="${r.id}" data-amt="${x}">+${F(x)}</button>`).join('')}</div>
+        <div class="row"><input id="rqA${r.id}" type="number" inputmode="numeric" min="1" placeholder="Otra cantidad"><button class="btn sm gold" data-a="reqokc" data-r="${r.id}">Dar</button><button class="btn sm red" data-a="reqno" data-r="${r.id}">No dar</button></div>`}</div>`}).join(''):'<p class="muted center">No hay solicitudes pendientes.</p>'}
     <p class="muted small">Sólo tú, como anfitrión, puedes dar fichas. También puedes dárselas a cualquiera desde ⚙️ Admin en cada mesa.</p></div></div></div>`;
 }
 function reqFab(){const n=(V.reqs||[]).length;return isHost&&n?`<button class="reqfab" data-a="reqsOpen">🙋 ${n} ${n===1?'solicitud':'solicitudes'}</button>`:''}
@@ -1549,13 +1562,16 @@ function adminPanel(t){
   if(!ui.admin)return t.seats.findIndex(s=>s&&s.pid===me)<0?'<button class="link" data-a="adminToggle">⚙️ Administrar mesa</button>':'';
   const closeH=t.tour?'':t.closing?'<p class="muted small">🔒 La mesa se cierra al terminar la mano.</p>':ui.closeAsk?`<div class="cashbox"><b>¿Cerrar ${esc(t.name)}?</b><small class="muted">Cada jugador cobra sus fichas y le llega su recibo.${t.hand&&t.hand.phase!=='showdown'?' Hay una mano en juego: se cierra al terminarla.':''}</small><div class="row"><button class="btn ghost" data-a="closeNo">Cancelar</button><button class="btn red" data-a="closeT">Sí, cerrar mesa</button></div></div>`:'<button class="btn sm red" data-a="closeAsk">🔒 Cerrar mesa y cobrar a todos</button>';
   if(!seated.length)return `<div class="addbox">${closeH}</div>`;
-  const unit=t.tour?((V.tours||[]).find(x=>x.id===t.tour)||{}).stack||t.buyin:t.buyin;
-  return `<div class="addbox"><div class="lbl">⚙️ Dar fichas a jugadores${t.tour?' (torneo)':''}</div>
-    ${seated.map(({s})=>`<div class="arow">${avH(V.players[s.pid],'sm')}<b>${esc(V.players[s.pid]?.name||'?')}</b><small>${FM(s.stack)}${s.pending?' +'+FM(s.pending):''}</small>
-      ${[.5,1].map(f=>`<button data-a="addto" data-p="${s.pid}" data-amt="${Math.round(unit*f)}">+${FM(Math.round(unit*f))}</button>`).join('')}</div>`).join('')}
-    <div class="row"><input id="addAmt" type="number" inputmode="numeric" min="1" placeholder="Otra cantidad"><select id="addWho">${seated.map(({s})=>`<option value="${s.pid}">${esc(V.players[s.pid]?.name||'?')}</option>`).join('')}</select><button class="btn sm" data-a="addcustom">Dar</button></div>
+  if(!seated.some(x=>x.s.pid===ui.giveTo))ui.giveTo=seated[0].s.pid;
+  const G=seated.find(x=>x.s.pid===ui.giveTo).s;
+  return `<div class="addbox"><div class="lbl">⚙️ Dar fichas${t.tour?' (torneo)':''} · 1) elige jugador</div>
+    <div class="whoGrid">${seated.map(({s})=>`<button class="who${s.pid===ui.giveTo?' on':''}" data-a="giveTo" data-p="${s.pid}">${avH(V.players[s.pid],'sm')}<b>${esc(V.players[s.pid]?.name||'?')}</b><small>${FM(s.stack)}${s.pending?' +'+FM(s.pending):''}</small></button>`).join('')}</div>
+    <div class="lbl">2) toca cuántas fichas le das a ${esc(V.players[G.pid]?.name||'?')}</div>
+    <div class="amtGrid">${AMTS.map(x=>`<button data-a="addto" data-p="${G.pid}" data-amt="${x}">+${FM(x)}</button>`).join('')}</div>
+    <div class="row"><input id="addAmt" type="number" inputmode="numeric" min="1" placeholder="Otra cantidad"><button class="btn sm gold" data-a="addcustom" data-p="${G.pid}">Dar</button></div>
     <small class="muted">Si el jugador está en una mano, las fichas se suman al terminarla.</small>${closeH}</div>`;
 }
+const AMTS=[10,20,30,40,50,100,150,200,300,500,1000,2000];
 function myPanel(t,i,s){
   if(i<0){
     const free=t.seats.some(x=>!x);
@@ -1605,7 +1621,8 @@ function myPanel(t,i,s){
   const myReq=(V.reqs||[]).find(r=>r.pid===me&&r.tid===t.id);
   if(myReq)extra=`<div class="reqbox">🙋 Pediste ${FM(myReq.amt)} fichas · esperando al anfitrión… <button class="link" data-a="reqcancel" data-r="${myReq.id}">Cancelar</button></div>`;
   else if(T){if(s.stack===0&&!inH(s))extra=T.level<T.rebuyLv?`<button class="btn gold" data-a="req">🙋 Pedir recompra de ${FM(T.stack)} al anfitrión</button>`:'<p class="muted center">Te quedaste sin fichas.</p>'}
-  else if(ui.addOpen&&!isHost)extra=`<div class="addbox"><div class="lbl">¿Cuántas fichas le pides al anfitrión?</div><div class="presets">${[.5,1,2].map(f=>`<button data-a="req" data-f="${f}">${FM(Math.round(t.buyin*f))}</button>`).join('')}</div>
+  else if(ui.addOpen&&!isHost)extra=`<div class="addbox"><div class="lbl">¿Cuántas fichas le pides al anfitrión?</div><div class="amtGrid">${AMTS.map(x=>`<button data-a="req" data-amt="${x}">${FM(x)}</button>`).join('')}</div>
+      <div class="row"><input id="reqAmt" type="number" inputmode="numeric" min="1" placeholder="Otra cantidad"><button class="btn sm gold" data-a="reqcustom">Pedir</button></div>
       <small class="muted">El anfitrión decide si te las da. Si estás en una mano, se suman al terminarla.</small></div>`;
   else if(s.stack===0&&!inH(s))extra=isHost?'':`<button class="btn gold" data-a="req" data-f="1">🙋 Pedir ${FM(t.buyin)} fichas al anfitrión</button>`;
   if(ui.cashAsk&&!t.tour&&!s.leave){const out=s.stack+(s.pending||0),net=out-(s.inv||0);
@@ -1702,17 +1719,20 @@ function clickAct(a,b){
     case 'treg':case 'tstart':case 'tcancel':case 'tpause':case 'tclear':return send({k:a,trid:+b.dataset.tr});
     case 'trebuy':return send({k:'trebuy',tid:t.id});
     case 'addToggle':ui.addOpen=!ui.addOpen;return render();
-    case 'req':ui.addOpen=false;return send({k:'req',tid:t.id,f:+(b.dataset.f||1)});
+    case 'req':ui.addOpen=false;return send(b.dataset.amt?{k:'req',tid:t.id,amt:+b.dataset.amt}:{k:'req',tid:t.id,f:+(b.dataset.f||1)});
+    case 'reqcustom':{const v=Math.floor(+(($('reqAmt')||{}).value||0));if(v>0){ui.addOpen=false;send({k:'req',tid:t.id,amt:v})}return}
+    case 'giveTo':ui.giveTo=b.dataset.p;return render();
     case 'reqcancel':return send({k:'reqcancel',rid:+b.dataset.r});
     case 'reqsOpen':ui.reqs=true;return render();
     case 'reqsClose':ui.reqs=false;return render();
+    case 'reqokc':{const v=Math.floor(+(($('rqA'+b.dataset.r)||{}).value||0));if(v>0)send({k:'reqok',rid:+b.dataset.r,amt:v});return}
     case 'reqok':return send({k:'reqok',rid:+b.dataset.r,amt:b.dataset.amt?+b.dataset.amt:undefined});
     case 'reqno':return send({k:'reqno',rid:+b.dataset.r});
     case 'ext':b.disabled=true;return send({k:'ext',tid:t.id});
     case 'adminToggle':ui.admin=!ui.admin;return render();
     case 'addme':ui.addOpen=false;return send({k:'add',tid:t.id,amt:+b.dataset.amt});
     case 'addto':return send({k:'add',tid:t.id,to:b.dataset.p,amt:+b.dataset.amt});
-    case 'addcustom':{const amt=Math.floor(+(($('addAmt')||{}).value||0)),to=($('addWho')||{}).value;if(amt>0&&to)send({k:'add',tid:t.id,to,amt});return}
+    case 'addcustom':{const amt=Math.floor(+(($('addAmt')||{}).value||0)),to=b.dataset.p;if(amt>0&&to)send({k:'add',tid:t.id,to,amt});return}
     case 'create':ui.create=!ui.create;return render();
     case 'mk':{const d=readForm();send({k:'mk',...d,amb:d.amb,deck:d.deck,sb:+d.sb,bb:+d.bb,buyBB:+d.buyBB,max:+d.max,timer:+d.timer,ante:+d.ante});ui.create=false;ui.form=null;return}
     case 'open':ui.style=false;ui.cashAsk=false;ui.closeAsk=false;if(V&&V.players[me]&&V.players[me].watch!==+b.dataset.t)send({k:'watch',tid:+b.dataset.t});ui.screen='table';ui.tid=+b.dataset.t;ui.raise=null;ui.drawSel=new Set();ui.addOpen=false;ui.admin=false;window.scrollTo(0,0);return render();
@@ -1816,6 +1836,10 @@ function rulesHtml(){
 }
 
 /* ---------- Arranque ---------- */
+const APP_VER='7';
+function checkUpdate(){try{fetch(location.pathname+'?nc='+Date.now(),{cache:'reload'}).then(r=>r.text()).then(tx=>{const m=tx.match(/APP_VER='(\d+)'/);
+  if(m&&m[1]!==APP_VER&&sessionStorage.getItem('pk_upd')!==m[1]){sessionStorage.setItem('pk_upd',m[1]);fetch(location.pathname,{cache:'reload'}).finally(()=>location.reload())}}).catch(()=>{})}catch(_){}}
+checkUpdate();
 (function boot(){
   const q=new URLSearchParams(location.search).get('club');
   const saved=store.get('pk_host');
