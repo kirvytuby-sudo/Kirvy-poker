@@ -19,7 +19,7 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:var(--bg)}
+html,body{margin:0;min-height:100%;background:var(--bg);overflow-x:hidden}
 body{color:var(--ink);font:400 15px/1.45 var(--body);
   background:radial-gradient(ellipse at 50% -10%,#1d3a2c 0,transparent 60%),var(--bg);background-attachment:fixed;
   padding:calc(12px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));
@@ -175,6 +175,29 @@ input.code{text-transform:uppercase;letter-spacing:.3em;text-align:center;font-s
 .rank{padding-left:20px}.rank li{margin:8px 0}.rank small{display:block;color:var(--muted)}
 .ex{display:inline-flex;gap:2px;vertical-align:middle;margin-left:6px}
 .cform select{appearance:auto}
+.small{font-size:12px}
+.house{background:rgba(227,181,76,.12);border:1px solid var(--gold2);border-radius:12px;padding:10px 12px;font-size:13px}
+.tcard.tour{cursor:default;background:linear-gradient(135deg,rgba(120,72,10,.55),rgba(40,24,6,.6))}
+.tcard.tour.run{border-color:var(--gold)}
+.regl{display:flex;flex-wrap:wrap;gap:6px}
+.pchip{display:inline-flex;align-items:center;gap:5px;background:rgba(0,0,0,.3);border-radius:999px;padding:2px 9px 2px 2px;font-size:13px;font-weight:700}
+.pchip .av{font-style:normal}
+.tstats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.tstats div{background:rgba(0,0,0,.3);border-radius:10px;padding:6px 2px}
+.tstats small{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.tstats b{font:800 15px var(--body);color:var(--gold);font-variant-numeric:tabular-nums}
+.place{color:#ffb4a8;font-weight:800;margin:0}
+.podium{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.podium li{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.25);border-radius:10px;padding:5px 10px}
+.podium li span{width:30px;text-align:center;font-weight:800}.podium li b{flex:1}
+.tbarx{background:linear-gradient(90deg,rgba(120,72,10,.6),rgba(40,24,6,.6));border:1px solid var(--gold2);border-radius:10px;padding:7px 10px;font-size:13px;text-align:center;font-variant-numeric:tabular-nums}
+.tbarx b{color:var(--gold)} .tbarx.done{border-color:#7ee2a0}
+.bub.pend{background:#7ee2a0;color:#0b2a17}
+.addbox{display:flex;flex-direction:column;gap:8px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:12px;padding:10px}
+.arow{display:flex;align-items:center;gap:6px;font-size:13px}
+.arow b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.arow small{color:var(--gold);font-weight:700}
+.arow button{background:rgba(227,181,76,.15);border:1px solid var(--gold2);color:var(--gold);border-radius:8px;padding:5px 8px;font:700 12px var(--body);cursor:pointer}
+.addbox select{min-height:36px;font-size:14px;padding:4px 8px}.addbox input{min-height:36px;font-size:14px}
 @media (prefers-reduced-motion:reduce){.tbar,.mtab.turn{animation:none}}
 @media (max-width:360px){.seat{width:26%}.pinfo b,.stk{font-size:11px}}
 </style>
@@ -185,6 +208,7 @@ input.code{text-transform:uppercase;letter-spacing:.3em;text-align:center;font-s
 <script>
 /* ================= MOTOR DE PÓKER ================= */
 const RANKS='23456789TJQKA', SUITS='shdc';
+const HOOK={before:null,after:null};
 const VAR={
   holdem:{name:"Texas Hold'em",short:"Hold'em",hole:2,board:true,max:9,limit:'nl',desc:'2 cartas tuyas + 5 comunitarias. La más jugada del mundo.'},
   omaha:{name:'Omaha',short:'Omaha',hole:4,board:true,omaha:true,max:9,limit:'pl',desc:'4 cartas tuyas; usas exactamente 2 de ellas y 3 de la mesa.'},
@@ -296,12 +320,14 @@ function nextToAct(t,from){
   return null;
 }
 function startHand(t){
+  if(HOOK.before)HOOK.before(t);
+  if(t.hold)return false;
   const elig=t.seats.map((s,i)=>s&&s.stack>0&&!s.sitOut&&!s.leave?i:-1).filter(i=>i>=0);
   if(elig.length<2){t.hand=null;return false}
   t.handNo++;
   t.btn=t.btn==null||!elig.length?elig[0]:after(t,t.btn).find(i=>elig.includes(i));
   const V=VAR[t.variant];
-  t.seats.forEach((s,i)=>{if(!s)return;Object.assign(s,{inHand:elig.includes(i),folded:false,allin:false,bet:0,total:0,cards:[],up:[],acted:false,canRaise:true,last:'',shown:false,drew:null,win:0,best:null})});
+  t.seats.forEach((s,i)=>{if(!s)return;Object.assign(s,{hs:s.stack,inHand:elig.includes(i),folded:false,allin:false,bet:0,total:0,cards:[],up:[],acted:false,canRaise:true,last:'',shown:false,drew:null,win:0,best:null})});
   const h=t.hand={n:t.handNo,deck:newDeck(V.shortDeck),muck:[],board:[],pot:0,street:0,phase:'bet',curBet:0,minRaise:t.bb,raises:0,toAct:null,actStart:Date.now(),results:null,sbI:null,bbI:null,bringI:null,drawTurn:null,nextAt:null};
   const order=after(t,t.btn).filter(i=>elig.includes(i));
   if(t.ante>0)elig.forEach(i=>{const s=t.seats[i];const x=Math.min(t.ante,s.stack);s.stack-=x;s.total+=x;h.pot+=x;if(!s.stack)s.allin=true});
@@ -451,10 +477,12 @@ function foldOut(t,i){
 function endHandCleanup(t){
   t.seats.forEach((s,i)=>{
     if(!s)return;
+    if(s.pending){s.stack+=s.pending;s.pending=0}
     if(s.leave){const L=t.ledger[s.pid]||(t.ledger[s.pid]={buy:0,out:0});L.out+=s.stack;t.seats[i]=null;return}
     Object.assign(s,{inHand:false,folded:false,allin:false,bet:0,total:0,cards:[],up:[],acted:false,last:'',shown:false,drew:null,win:0,best:null});
   });
   t.hand=null;
+  if(HOOK.after)HOOK.after(t);
 }
 function pushLog(t,txt){t.log.push({n:t.handNo,txt});if(t.log.length>30)t.log.shift()}
 /* Reloj: llamado por el anfitrión ~3 veces por segundo. Devuelve true si cambió algo. */
@@ -462,17 +490,18 @@ function tickTable(t,now,isOn){
   const h=t.hand;
   const elig=t.seats.filter(s=>s&&s.stack>0&&!s.sitOut&&!s.leave).length;
   if(!h){
+    if(t.hold){if(t.waitUntil){t.waitUntil=null;return true}return false}
     if(elig>=2&&!t.waitUntil){t.waitUntil=now+2500;return true}
     if(elig<2&&t.waitUntil){t.waitUntil=null;return true}
     if(t.waitUntil&&now>=t.waitUntil){t.waitUntil=null;startHand(t);return true}
     return false;
   }
-  if(h.phase==='showdown'){if(now>=h.nextAt){endHandCleanup(t);if(t.seats.filter(s=>s&&s.stack>0&&!s.sitOut&&!s.leave).length>=2)startHand(t);return true}return false}
+  if(h.phase==='showdown'){if(now>=h.nextAt){endHandCleanup(t);if(!t.hold&&t.seats.filter(s=>s&&s.stack>0&&!s.sitOut&&!s.leave).length>=2)startHand(t);return true}return false}
   if(h.phase==='runout'){if(now>=h.nextAt){runoutStep(t);return true}return false}
   const i=h.phase==='bet'?h.toAct:h.drawTurn; if(i==null)return false;
   const s=t.seats[i], el=now-h.actStart;
   const away=s.sitOut||s.leave||!isOn(s.pid);
-  const limitMs=away?(s.sitOut||s.leave?600:12000):(t.timer?t.timer*1000:0);
+  const limitMs=away?(s.sitOut||s.leave?600:Math.max(25000,(t.timer||0)*1000)):(t.timer?t.timer*1000:0);
   if(limitMs&&el>limitMs){
     if(!away){s.timeouts=(s.timeouts||0)+1;if(s.timeouts>=2)s.sitOut=true}
     if(h.phase==='draw')drawAction(t,i,[]);
@@ -493,7 +522,8 @@ const view=$('app');
 let C=null;            // estado completo del club (sólo el anfitrión)
 let V=null;            // lo que ve este celular
 let me=null, isHost=false, code=null, peer=null, conn=null, conns={}, connected=false, errMsg='', clockOff=0, retryT=null, leaving=false;
-let ui={screen:'lobby',tid:null,raise:null,drawSel:new Set(),rules:false,create:false,chat:'',chatOpen:false,tab:'mesas'};
+let ui={screen:'lobby',tid:null,raise:null,drawSel:new Set(),rules:false,create:false,chat:'',chatOpen:false,tab:'mesas',addOpen:false,admin:false,tcreate:false};
+let houseMode=false, lastMsgAt=0, hiddenAt=0;
 let myName='';try{myName=localStorage.getItem('pk_name')||''}catch(e){}
 const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const pname=pid=>(C&&C.players[pid]&&C.players[pid].name)||(V&&V.players[pid]&&V.players[pid].name)||'Jugador';
@@ -502,30 +532,43 @@ const newCode=()=>{let s='';const a=new Uint32Array(4);crypto.getRandomValues(a)
 const shareUrl=c=>location.origin+location.pathname+'?club='+c;
 
 /* ---------- Anfitrión ---------- */
-function newClub(){return {v:0,code,pn:0,tn:0,players:{p0:{name:myName||'Anfitrión',online:true,tok:''}},tables:[]}}
+function newClub(){return {v:0,code,pn:0,tn:0,trn:0,players:{p0:{name:houseMode?'Mesa':(myName||'Anfitrión'),online:true,tok:'',house:houseMode}},tables:[],tours:[]}}
 function hostClub(resume){
   if(typeof Peer==='undefined'){errMsg='No se pudo cargar la conexión. Revisa tu internet.';return renderHome()}
   isHost=true;me='p0';conns={};
-  if(resume){C=resume.C;code=C.code;Object.values(C.players).forEach(p=>p.online=false);C.players.p0.online=true;C.players.p0.name=myName||C.players.p0.name}
+  if(resume){C=resume.C;code=C.code;C.tours=C.tours||[];C.trn=C.trn||0;Object.values(C.players).forEach(p=>p.online=false);C.players.p0.online=true;
+    if(!C.players.p0.house)C.players.p0.name=myName||C.players.p0.name;
+    const away=Date.now()-(resume.at||Date.now());shiftClocks(away)}
   else{code=newCode();C=newClub()}
+  try{history.replaceState(null,'',location.pathname+'?club='+code)}catch(_){}
   renderMsg(resume?'Reabriendo el club '+code+'…':'Creando el club…');
-  let tries=0;
-  const open=()=>{
-    peer=new Peer(PREFIX+code);
-    peer.on('open',()=>{connected=true;startTicker();commit()});
-    peer.on('error',e=>{
-      if(e.type==='unavailable-id'){if(resume&&tries++<15){try{peer.destroy()}catch(_){}renderMsg('Recuperando el código '+code+'… ('+tries+')');return setTimeout(open,4000)}
-        if(!resume){try{peer.destroy()}catch(_){}code=newCode();C.code=code;return open()}}
-      if(!connected){errMsg='No se pudo abrir el club ('+e.type+').';resetAll()}
-    });
-    peer.on('disconnected',()=>{try{peer.reconnect()}catch(_){}});
-    peer.on('connection',c=>{
-      c.on('data',m=>hostMsg(c,m));
-      c.on('close',()=>{if(c.pid&&conns[c.pid]===c){delete conns[c.pid];if(C.players[c.pid])C.players[c.pid].online=false;commit()}});
-      c.on('error',()=>{});
-    });
-  };
-  open();
+  hostOpen(!!resume,0);
+}
+function hostOpen(resume,tries){
+  const old=peer;peer=null;if(old){old.__dead=true;try{old.destroy()}catch(_){}}
+  const pp=new Peer(PREFIX+code);peer=pp;
+  pp.on('open',()=>{if(pp!==peer)return;connected=true;startTicker();commit()});
+  pp.on('error',e=>{if(pp!==peer)return;
+    if(e.type==='unavailable-id'){
+      if(resume||C.v>0){if(tries<20){if(!V)renderMsg('Recuperando el código '+code+'… ('+(tries+1)+')');return setTimeout(()=>hostOpen(true,tries+1),3000)}}
+      else{code=newCode();C.code=code;return hostOpen(false,0)}
+    }
+    if(!connected&&!V){errMsg='No se pudo abrir el club ('+e.type+').';resetAll()}
+  });
+  pp.on('disconnected',()=>{setTimeout(()=>{try{if(pp===peer&&pp.disconnected&&!pp.destroyed)pp.reconnect()}catch(_){}},800)});
+  pp.on('close',()=>{if(pp===peer&&!pp.__dead&&isHost&&C&&!leaving)setTimeout(()=>{if(pp===peer)hostOpen(true,0)},1500)});
+  pp.on('connection',c=>{
+    c.lastSeen=Date.now();
+    c.on('data',m=>{c.lastSeen=Date.now();hostMsg(c,m)});
+    c.on('close',()=>dropConn(c));
+    c.on('error',()=>{});
+  });
+}
+function dropConn(c){if(c.pid&&conns[c.pid]===c){delete conns[c.pid];if(C.players[c.pid])C.players[c.pid].online=false;commit()}}
+function shiftClocks(ms){
+  if(!C||ms<1500)return;
+  C.tables.forEach(t=>{const h=t.hand;if(h){h.actStart+=ms;if(h.nextAt)h.nextAt+=ms}if(t.waitUntil)t.waitUntil+=ms});
+  (C.tours||[]).forEach(T=>{if(T.status==='run'&&!T.paused)T.levelStart+=ms});
 }
 function hostMsg(c,m){
   if(!m||typeof m!=='object')return;
@@ -540,6 +583,7 @@ function hostMsg(c,m){
     try{c.send({t:'hello',id,tok:P.tok})}catch(_){}
     return commit();
   }
+  if(m.t==='ping'){try{c.send({t:'pong'})}catch(_){}return}
   if(m.t==='do'&&c.pid)handle(c.pid,m.a||{});
 }
 let saveT=0;
@@ -560,8 +604,11 @@ function viewFor(pid){
 let tickIv=null;
 function startTicker(){
   if(tickIv)return;
+  let lastBeat=0;
   tickIv=setInterval(()=>{if(!C)return;const now=Date.now();let ch=false;
-    C.tables.forEach(t=>{try{if(tickTable(t,now,pid=>pid==='p0'||isOnline(pid)))ch=true}catch(e){console.error(e)}});
+    if(now-lastBeat>3000){lastBeat=now;Object.values(conns).forEach(c=>{if(now-(c.lastSeen||0)>16000){try{c.close()}catch(_){}dropConn(c)}})}
+    (C.tours||[]).forEach(T=>{if(tourTick(T,now))ch=true});
+    [...C.tables].forEach(t=>{try{if(tickTable(t,now,pid=>pid==='p0'||isOnline(pid)))ch=true}catch(e){console.error(e)}});
     if(ch)commit();},350);
 }
 function seatOf(t,pid){return t.seats.findIndex(s=>s&&s.pid===pid)}
@@ -581,21 +628,124 @@ function handle(pid,a){
         seats:Array(max).fill(null),ledger:{},btn:null,handNo:0,log:[],chat:[],hand:null,by:pid,waitUntil:null});
       break;}
     case 'close':if(t&&(t.by===pid||pid==='p0')&&t.seats.every(s=>!s))C.tables=C.tables.filter(x=>x!==t);break;
-    case 'sit':{if(!t||seatOf(t,pid)>=0)return;const i=a.s|0;if(i<0||i>=t.seats.length||t.seats[i])return;
+    case 'sit':{if(!t||t.tour||P.house||seatOf(t,pid)>=0)return;const i=a.s|0;if(i<0||i>=t.seats.length||t.seats[i])return;
       t.seats[i]=seatBlank(pid,t.buyin);const L=t.ledger[pid]||(t.ledger[pid]={buy:0,out:0});L.buy+=t.buyin;break;}
     case 'leave':{if(!t)return;const i=seatOf(t,pid);if(i<0)return;const s=t.seats[i];
+      if(t.tour){s.sitOut=true;break}
       if(t.hand&&inH(s)&&t.hand.phase!=='showdown'){s.leave=true;foldOut(t,i)}
       else if(t.hand&&t.hand.phase==='showdown'&&s.inHand){s.leave=true}
       else{t.ledger[pid].out+=s.stack;t.seats[i]=null}
       break;}
     case 'sitout':{if(!t)return;const s=t.seats[seatOf(t,pid)];if(!s)return;s.sitOut=!s.sitOut;s.timeouts=0;break;}
-    case 'rebuy':{if(!t||!t.rebuy)return;const s=t.seats[seatOf(t,pid)];if(!s||s.stack>0||inH(s))return;s.stack=t.buyin;s.sitOut=false;t.ledger[pid].buy+=t.buyin;break;}
+    case 'rebuy':{if(!t||!t.rebuy||t.tour)return;const s=t.seats[seatOf(t,pid)];if(!s||s.stack>0||inH(s))return;s.stack=t.buyin;s.sitOut=false;t.ledger[pid].buy+=t.buyin;break;}
+    case 'add':{
+      if(!t)return;const target=a.to||pid, i=seatOf(t,target);if(i<0)return;const s=t.seats[i];
+      const admin=pid==='p0'||t.by===pid||(t.tour&&(C.tours.find(T=>T.id===t.tour)||{}).by===pid);
+      if(!admin&&(target!==pid||!t.rebuy||t.tour))return;
+      const amt=Math.floor(+a.amt||0);if(!(amt>0&&amt<=1e8))return;
+      if(t.hand&&inH(s)&&t.hand.phase!=='showdown')s.pending=(s.pending||0)+amt;else s.stack+=amt;
+      s.sitOut=false;s.timeouts=0;const L=t.ledger[target]||(t.ledger[target]={buy:0,out:0});L.buy+=amt;
+      pushLog(t,(target===pid?pname(pid)+' agregó ':pname(pid)+' le dio ')+fmt(amt)+' fichas'+(target===pid?'':' a '+pname(target))+(s.pending?' (al terminar la mano)':''));
+      break;}
+    case 'tmk':{
+      if((C.tours||[]).filter(T=>T.status!=='done').length>=4)return;
+      const v=VAR[a.variant]?a.variant:'holdem';
+      const T={id:++C.trn,name:clean(a.name,22)||('Torneo '+C.trn),variant:v,limit:LIMITS[a.limit]?a.limit:VAR[v].limit,
+        stack:[1500,3000,5000,10000].includes(+a.stack)?+a.stack:3000,levelMin:[3,5,8,10,15,20].includes(+a.levelMin)?+a.levelMin:10,
+        timer:[0,20,30,45,60].includes(+a.timer)?+a.timer:30,rebuyLv:[0,2,4].includes(+a.rebuyLv)?+a.rebuyLv:0,
+        seats:Math.max(2,Math.min(VAR[v].max,+a.seats||VAR[v].max)),ante:!!a.ante,by:pid,status:'reg',reg:[],tables:[],places:[],level:0,levelStart:0,paused:false,pausedAt:0,entries:{},total:0,startedAt:0};
+      if(!P.house)T.reg.push(pid);
+      C.tours.push(T);break;}
+    case 'treg':{const T=C.tours.find(x=>x.id===a.trid);if(!T||T.status!=='reg'||P.house)return;
+      if(T.reg.includes(pid))T.reg=T.reg.filter(x=>x!==pid);else{if(T.reg.length>=MAX_CLUB)return;T.reg.push(pid)}break;}
+    case 'tcancel':{const T=C.tours.find(x=>x.id===a.trid);if(!T||T.status!=='reg'||(T.by!==pid&&pid!=='p0'))return;C.tours=C.tours.filter(x=>x!==T);break;}
+    case 'tstart':{const T=C.tours.find(x=>x.id===a.trid);if(!T||T.status!=='reg'||(T.by!==pid&&pid!=='p0')||T.reg.length<2)return;tourStart(T);break;}
+    case 'tpause':{const T=C.tours.find(x=>x.id===a.trid);if(!T||T.status!=='run'||(T.by!==pid&&pid!=='p0'))return;
+      const now=Date.now();if(T.paused){T.levelStart+=now-T.pausedAt;T.paused=false}else{T.paused=true;T.pausedAt=now}
+      tourTables(T).forEach(x=>{x.hold=T.paused;pushLog(x,T.paused?'⏸ Torneo en pausa (se termina la mano en curso)':'▶️ Se reanuda el torneo')});break;}
+    case 'trebuy':{if(!t||!t.tour)return;const T=C.tours.find(x=>x.id===t.tour);const s=t.seats[seatOf(t,pid)];
+      if(!T||!s||s.stack>0||inH(s)||T.level>=T.rebuyLv)return;s.stack=T.stack;s.sitOut=false;T.entries[pid]=(T.entries[pid]||1)+1;T.total++;
+      pushLog(t,pname(pid)+' recompró '+fmt(T.stack));break;}
+    case 'tclear':{const T=C.tours.find(x=>x.id===a.trid);if(!T||T.status!=='done'||(T.by!==pid&&pid!=='p0'))return;
+      tourTables(T).forEach(x=>{C.tables=C.tables.filter(y=>y!==x)});C.tours=C.tours.filter(x=>x!==T);break;}
     case 'act':{if(!t)return;const i=seatOf(t,pid);if(i<0)return;t.seats[i].timeouts=0;if(!doAction(t,i,a.a,a.to))return;break;}
     case 'draw':{if(!t)return;const i=seatOf(t,pid);if(i<0)return;t.seats[i].timeouts=0;if(!drawAction(t,i,a.idx))return;break;}
     case 'chat':{if(!t)return;const txt=clean(a.txt,140);if(!txt)return;t.chat.push({pid,txt,at:Date.now()});if(t.chat.length>40)t.chat.shift();break;}
     default:return;
   }
   commit();
+}
+
+
+/* ---------- Torneos (anfitrión) ---------- */
+const LV_MULT=[1,1.5,2,3,4,5,6,8,10,12,15,20,25,30,40,50,60,80,100,120,150,200,250,300,400,500];
+const nice=x=>{if(x<10)return Math.max(2,Math.round(x/2)*2);const p=Math.pow(10,Math.floor(Math.log10(x)))/2;return Math.round(x/p)*p};
+function tourBlinds(T,lv){const bb0=T.stack/100,bb=nice(bb0*LV_MULT[Math.min(lv,LV_MULT.length-1)]);const st=T.variant==='stud7';
+  return {bb,sb:Math.max(1,Math.floor(bb/2)),ante:st?Math.max(1,Math.round(bb/5)):(T.ante&&lv>=3?Math.max(1,Math.round(bb/10)):0)}}
+const tourTables=T=>C.tables.filter(x=>x.tour===T.id);
+const tourAlive=T=>{const r=[];tourTables(T).forEach(x=>x.seats.forEach(s=>{if(s)r.push(s)}));return r};
+function tourStart(T){
+  const ps=shuffle(T.reg.filter(pid=>C.players[pid])), n=ps.length, k=Math.ceil(n/T.seats), now=Date.now();
+  T.status='run';T.level=0;T.levelStart=now;T.startedAt=now;T.total=n;T.places=[];T.tables=[];
+  const b=tourBlinds(T,0);
+  for(let j=0;j<k;j++){
+    const t={id:++C.tn,name:T.name+(k>1?' · Mesa '+(j+1):''),variant:T.variant,limit:T.limit,sb:b.sb,bb:b.bb,ante:b.ante,buyin:T.stack,timer:T.timer,rebuy:false,
+      seats:Array(T.seats).fill(null),ledger:{},btn:null,handNo:0,log:[],chat:[],hand:null,by:T.by,waitUntil:null,tour:T.id,hold:false};
+    C.tables.push(t);T.tables.push(t.id);
+  }
+  const tabs=tourTables(T);
+  ps.forEach((pid,i)=>{const t=tabs[i%k];const free=t.seats.map((x,q)=>x?-1:q).filter(q=>q>=0);const q=free[Math.floor(Math.random()*free.length)];
+    t.seats[q]=seatBlank(pid,T.stack);T.entries[pid]=1});
+  tabs.forEach(t=>pushLog(t,'🏆 ¡Empieza el torneo! Ciegas '+fmt(b.sb)+'/'+fmt(b.bb)));
+}
+function tourTick(T,now){
+  if(T.status!=='run')return false;
+  const sig=()=>T.places.length+':'+T.status+':'+tourTables(T).map(x=>x.id+'-'+x.seats.filter(Boolean).length).join(',');
+  const before=sig();tourTables(T).forEach(x=>{if(!x.hand)HOOK.after(x)});if(sig()!==before)return true;
+  if(T.paused)return false;
+  if(now>=T.levelStart+T.levelMin*60000){T.level++;T.levelStart+=T.levelMin*60000;const b=tourBlinds(T,T.level);
+    tourTables(T).forEach(t=>pushLog(t,'⬆️ Nivel '+(T.level+1)+': ciegas '+fmt(b.sb)+'/'+fmt(b.bb)+(b.ante?' · ante '+fmt(b.ante):'')+(T.rebuyLv&&T.level===T.rebuyLv?' · se acabaron las recompras':'')));return true}
+  return false;
+}
+HOOK.before=t=>{
+  if(!t.tour||!C)return;const T=C.tours.find(x=>x.id===t.tour);if(!T)return;
+  const b=tourBlinds(T,T.level);t.sb=b.sb;t.bb=b.bb;t.ante=b.ante;t.hold=T.paused||T.status!=='run';
+};
+HOOK.after=t=>{
+  if(!t.tour||!C)return;const T=C.tours.find(x=>x.id===t.tour);if(!T||T.status!=='run')return;
+  // eliminados
+  const canRebuy=T.level<T.rebuyLv;
+  const busted=t.seats.map((s,i)=>s&&s.stack<=0&&!(s.pending>0)?i:-1).filter(i=>i>=0);
+  if(busted.length&&!canRebuy){
+    const ord=busted.sort((a,b)=>(t.seats[b].hs||0)-(t.seats[a].hs||0));
+    const aliveAfter=tourAlive(T).length-busted.length;
+    ord.forEach((i,k)=>{const pid=t.seats[i].pid;T.places.push({pid,place:aliveAfter+k+1});pushLog(t,'💀 '+pname(pid)+' queda en el lugar #'+(aliveAfter+k+1));t.seats[i]=null});
+  }
+  const alive=tourAlive(T);
+  if(alive.length<=1){
+    if(alive.length===1)T.places.push({pid:alive[0].pid,place:1});
+    T.status='done';T.endedAt=Date.now();tourTables(T).forEach(x=>{x.hold=true});
+    pushLog(t,'🏆 ¡'+(alive[0]?pname(alive[0].pid):'—')+' gana el torneo!');return;
+  }
+  tourBalance(T,t);
+};
+function tourBalance(T,t){
+  const tabs=tourTables(T);if(tabs.length<2||!C.tables.includes(t))return;
+  const cnt=x=>x.seats.filter(Boolean).length, A=tourAlive(T).length, need=Math.ceil(A/T.seats);
+  const others=tabs.filter(x=>x!==t);
+  const placeIn=(seat,to)=>{const free=to.seats.map((x,q)=>x?-1:q).filter(q=>q>=0);if(!free.length)return false;
+    Object.assign(seat,{inHand:false,folded:false,allin:false,bet:0,total:0,cards:[],up:[],acted:false,last:'',shown:false,drew:null,win:0,best:null});
+    to.seats[free[Math.floor(Math.random()*free.length)]]=seat;pushLog(to,'➡️ '+pname(seat.pid)+' llega a esta mesa');return true};
+  if(tabs.length>need&&cnt(t)<=Math.min(...others.map(cnt))){
+    t.seats.forEach((seat,i)=>{if(!seat)return;const to=others.slice().sort((a,b)=>cnt(a)-cnt(b))[0];if(placeIn(seat,to))t.seats[i]=null});
+    if(t.seats.every(x=>!x)){C.tables=C.tables.filter(x=>x!==t);T.tables=T.tables.filter(id=>id!==t.id)}
+    return;
+  }
+  const minO=others.slice().sort((a,b)=>cnt(a)-cnt(b))[0];
+  if(cnt(t)-cnt(minO)>=2){
+    const cand=t.seats.map((x,i)=>x&&i!==t.btn?i:-1).filter(i=>i>=0);const i=cand[Math.floor(Math.random()*cand.length)];
+    const sp=i!=null?t.seats[i]:null;if(sp&&placeIn(sp,minO)){pushLog(t,'⬅️ '+pname(sp.pid)+' se cambia de mesa para equilibrar');t.seats[i]=null}
+  }
 }
 
 /* ---------- Invitado ---------- */
@@ -609,10 +759,11 @@ function joinClub(raw){
   peer=new Peer();
   peer.on('open',()=>{
     const cn=peer.connect(PREFIX+c,{reliable:true});conn=cn;
-    cn.on('open',()=>{connected=true;const saved=store.get('pk_me_'+c)||{};try{cn.send({t:'hi',name:myName,id:saved.id,tok:saved.tok})}catch(_){}
+    cn.on('open',()=>{connected=true;lastMsgAt=Date.now();const saved=store.get('pk_me_'+c)||{};try{cn.send({t:'hi',name:myName,id:saved.id,tok:saved.tok})}catch(_){}
       try{history.replaceState(null,'',location.pathname+'?club='+c)}catch(_){}});
     cn.on('data',m=>{
-      if(!m||typeof m!=='object')return;
+      lastMsgAt=Date.now();
+      if(!m||typeof m!=='object'||m.t==='pong')return;
       if(m.t==='full'){errMsg='El club está lleno.';return resetAll()}
       if(m.t==='hello'){me=m.id;store.set('pk_me_'+c,{id:m.id,tok:m.tok});return}
       if(m.t==='state'&&m.S){V=m.S;clockOff=Date.now()-V.now;me=V.you;render()}
@@ -626,6 +777,19 @@ function joinClub(raw){
     if(!connected&&!V){errMsg='No se pudo conectar ('+e.type+').';resetAll()}
   });
 }
+setInterval(()=>{
+  if(isHost||!code||leaving)return;
+  if(conn&&conn.open){try{conn.send({t:'ping'})}catch(_){}}
+  if(connected&&Date.now()-lastMsgAt>13000){connected=false;render();try{conn&&conn.close()}catch(_){}joinClub(code)}
+},4000);
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){hiddenAt=Date.now();if(isHost&&C)store.set('pk_host',{at:Date.now(),C});return}
+  const away=hiddenAt?Date.now()-hiddenAt:0;hiddenAt=0;
+  if(isHost&&C){shiftClocks(away);if(!peer||peer.destroyed)hostOpen(true,0);else if(peer.disconnected){try{peer.reconnect()}catch(_){}}
+    Object.values(conns).forEach(c=>{c.lastSeen=Date.now()});commit();return}
+  if(code&&!leaving&&(!conn||!conn.open||Date.now()-lastMsgAt>6000)){connected=false;joinClub(code)}
+});
+window.addEventListener('pageshow',e=>{if(e.persisted&&code&&!isHost&&!leaving)joinClub(code)});
 function retry(){clearTimeout(retryT);retryT=setTimeout(()=>{if(!connected&&!leaving&&code)joinClub(code)},3000)}
 function send(a){
   if(isHost)return handle('p0',a);
@@ -648,7 +812,8 @@ function renderHome(){
     <div class="hero"><div class="suits"><span>♠</span><span class="r">♥</span><span>♣</span><span class="r">♦</span></div>
       <h1>Club de Póker</h1><p>Mesas de hasta 9 jugadores, varias mesas al mismo tiempo, cada quien desde su celular. Se juega con fichas, sin dinero real.</p></div>
     <section class="panel"><label class="fld"><span>Tu nombre en la mesa</span><input id="nameIn" maxlength="14" placeholder="¿Cómo te llamas?" value="${esc(myName)}" autocomplete="nickname"></label></section>
-    <section class="panel"><h2>Abrir un club</h2><p class="muted">Tú eres el anfitrión: tu celular lleva las mesas, así que déjalo con la app abierta mientras juegan.</p>
+    <section class="panel"><h2>Abrir un club</h2><p class="muted">El dispositivo que abre el club lleva las mesas. Si cambias de app, todo se pausa y sigue igual cuando regresas.</p>
+      <label class="chk"><input type="checkbox" id="houseIn"> Este dispositivo sólo lleva las mesas y no juega (ideal: una compu o tablet que se quede prendida, así nunca se pausa)</label>
       <button class="btn gold" data-a="host">Crear club</button>
       ${canResume?`<button class="btn ghost" data-a="resume">↺ Reabrir mi club ${esc(saved.C.code)}</button>`:''}</section>
     <section class="panel"><h2>Entrar a un club</h2>
@@ -683,9 +848,9 @@ const tableTag=t=>`${VAR[t.variant].short} · ${LIM_SHORT[t.limit]} · ${fmt(t.s
 
 function renderLobby(){
   document.documentElement.dataset.scr='lobby';
-  const players=Object.entries(V.players).sort((a,b)=>myNet(b[0])-myNet(a[0]));
+  const players=Object.entries(V.players).filter(([,p])=>!p.house).sort((a,b)=>myNet(b[0])-myNet(a[0]));
   const online=players.filter(p=>p[1].online).length;
-  const tables=V.tables.map(t=>{
+  const tables=V.tables.filter(t=>!t.tour).map(t=>{
     const seated=t.seats.filter(Boolean).length, mine=t.seats.some(s=>s&&s.pid===me);
     const st=t.hand?`Mano #${t.hand.n} en juego`:seated>=2?'Por empezar…':'Esperando jugadores';
     return `<article class="tcard${mine?' mine':''}${myTurnAt(t)?' turn':''}" data-a="open" data-t="${t.id}">
@@ -698,10 +863,14 @@ function renderLobby(){
     <header class="lhead"><div><div class="brand">♠ Club de Póker</div><div class="muted">Club <b class="mono">${esc(V.code)}</b> · ${online} conectados</div></div>
       <button class="btn sm" data-a="invite">➕ Invitar</button></header>
     ${myTablesBar()}
-    <nav class="tabs"><button class="${ui.tab==='mesas'?'on':''}" data-a="tab" data-v="mesas">Mesas (${V.tables.length})</button><button class="${ui.tab==='gente'?'on':''}" data-a="tab" data-v="gente">Jugadores</button><button data-a="rules">📖 Reglas</button></nav>
+    <nav class="tabs"><button class="${ui.tab==='mesas'?'on':''}" data-a="tab" data-v="mesas">Mesas (${V.tables.filter(t=>!t.tour).length})</button><button class="${ui.tab==='torneos'?'on':''}" data-a="tab" data-v="torneos">🏆 Torneos${(V.tours||[]).some(T=>T.status==='run')?' •':''}</button><button class="${ui.tab==='gente'?'on':''}" data-a="tab" data-v="gente">Jugadores</button><button data-a="rules">📖 Reglas</button></nav>
+    ${V.players[me]&&V.players[me].house?'<div class="house">🖥️ Modo mesa: este dispositivo lleva el club. Déjalo conectado, con la pantalla encendida y esta página abierta.</div>':''}
     ${ui.tab==='mesas'?`
       <div class="tlist">${tables||'<p class="muted center empty">Todavía no hay mesas. Crea la primera abajo.</p>'}</div>
       ${V.tables.length<MAX_TABLES?(ui.create?createForm():'<button class="btn gold" data-a="create">＋ Crear mesa</button>'):''}`
+    :ui.tab==='torneos'?`
+      <div class="tlist">${(V.tours||[]).slice().reverse().map(tourCard).join('')||'<p class="muted center empty">No hay torneos. Crea uno: todos empiezan con las mismas fichas, las ciegas suben cada cierto tiempo y gana quien se queda con todo.</p>'}</div>
+      ${ui.tcreate?tourForm():'<button class="btn gold" data-a="tcreate">🏆 Crear torneo</button>'}`
     :`<section class="panel"><div class="lbl">Tabla de ganancias (fichas)</div>
       <ol class="board-list">${players.map(([pid,p])=>{const n=myNet(pid);return `<li><span class="av sm" style="--h:${hue(pid)}">${esc(initials(p.name))}</span><b>${esc(p.name)}${pid===me?' (tú)':''}</b>${p.online?'':'<small class="muted"> · fuera</small>'}<span class="net ${n>0?'up':n<0?'dn':''}">${n>0?'+':''}${fmt(n)}</span></li>`}).join('')}</ol>
       <label class="fld"><span>Tu nombre</span><div class="row"><input id="renameIn" maxlength="14" value="${esc(V.players[me]?V.players[me].name:myName)}"><button class="btn sm" data-a="rename">Guardar</button></div></label></section>`}
@@ -727,6 +896,62 @@ function createForm(){
 }
 function readForm(){const d=ui.form;['name','variant','limit','bb','buyBB','max','timer','ante'].forEach(k=>{const e=$('f_'+k);if(e)d[k]=e.value});const r=$('f_rebuy');if(r)d.rebuy=r.checked;return d}
 
+
+/* ---------- Torneos (pantallas) ---------- */
+const mmss=ms=>{ms=Math.max(0,ms);const m=Math.floor(ms/60000),s2=Math.floor(ms/1000)%60;return m+':'+String(s2).padStart(2,'0')};
+const tBlindsTxt=(T,lv)=>{const b=tourBlinds(T,lv);return fmt(b.sb)+'/'+fmt(b.bb)+(b.ante?' · ante '+fmt(b.ante):'')};
+function tourTablesV(T){return V.tables.filter(t=>t.tour===T.id)}
+function tourAliveV(T){const r=[];tourTablesV(T).forEach(t=>t.seats.forEach(s=>{if(s)r.push(s)}));return r}
+function levelLeft(T){const now=Date.now()-clockOff;return T.paused?T.levelStart+T.levelMin*60000-T.pausedAt:T.levelStart+T.levelMin*60000-now}
+function tourCard(T){
+  const admin=T.by===me||isHost, myPlace=T.places.find(x=>x.pid===me), myTab=tourTablesV(T).find(t=>t.seats.some(s=>s&&s.pid===me));
+  const head=`<div class="tc-top"><b>🏆 ${esc(T.name)}</b><span class="vbadge v-${T.variant}">${VAR[T.variant].short}</span></div>
+    <div class="tc-mid">${LIMITS[T.limit]} · ${fmt(T.stack)} fichas · niveles de ${T.levelMin} min${T.rebuyLv?' · recompras ' +T.rebuyLv+' niveles':' · sin recompras'}</div>`;
+  if(T.status==='reg'){
+    const inR=T.reg.includes(me);
+    return `<article class="tcard tour">${head}
+      <div class="regl">${T.reg.map(pid=>`<span class="pchip"><i class="av sm" style="--h:${hue(pid)}">${esc(initials(V.players[pid]?.name))}</i>${esc(V.players[pid]?.name||'?')}</span>`).join('')||'<span class="muted">Nadie inscrito aún</span>'}</div>
+      <div class="row">${V.players[me]&&!V.players[me].house?`<button class="btn ${inR?'ghost':'gold'}" data-a="treg" data-tr="${T.id}">${inR?'Salirme':'Inscribirme'}</button>`:''}
+        ${admin?`<button class="btn" data-a="tstart" data-tr="${T.id}" ${T.reg.length<2?'disabled':''}>Empezar (${T.reg.length})</button>`:''}</div>
+      ${admin?`<button class="link" data-a="tcancel" data-tr="${T.id}">Cancelar torneo</button>`:''}
+      <p class="muted small">Se reparten mesas de hasta ${T.seats} y se van juntando conforme quedan menos jugadores.</p></article>`;
+  }
+  if(T.status==='run'){
+    const alive=tourAliveV(T), lv=T.level, chips=alive.reduce((a,s)=>a+s.stack+(s.bet||0),0)+tourTablesV(T).reduce((a,t)=>a+(t.hand?t.hand.pot:0),0);
+    const avg=alive.length?Math.round(chips/alive.length):0;
+    return `<article class="tcard tour run">${head}
+      <div class="tstats"><div><small>Nivel</small><b>${lv+1}</b></div><div><small>Ciegas</small><b>${tBlindsTxt(T,lv)}</b></div><div><small>${T.paused?'En pausa':'Sube en'}</small><b data-lvl="${T.id}">${T.paused?'⏸':mmss(levelLeft(T))}</b></div><div><small>Quedan</small><b>${alive.length}/${T.total}</b></div></div>
+      <div class="tc-mid">Siguiente: ${tBlindsTxt(T,lv+1)} · promedio ${fmt(avg)} fichas</div>
+      ${myPlace?`<p class="place">Quedaste en el lugar #${myPlace.place}</p>`:''}
+      <div class="row">${myTab?`<button class="btn gold" data-a="open" data-t="${myTab.id}">Ir a mi mesa</button>`:tourTablesV(T).map((t,k)=>`<button class="btn ghost" data-a="open" data-t="${t.id}">Ver mesa ${k+1}</button>`).join('')}
+        ${admin?`<button class="btn sm ghost" data-a="tpause" data-tr="${T.id}">${T.paused?'▶️ Reanudar':'⏸ Pausar'}</button>`:''}</div></article>`;
+  }
+  const pl=T.places.slice().sort((a,b)=>a.place-b.place);
+  return `<article class="tcard tour done">${head}
+    <ol class="podium">${pl.map(x=>`<li><span>${x.place===1?'🥇':x.place===2?'🥈':x.place===3?'🥉':'#'+x.place}</span><b>${esc(V.players[x.pid]?.name||'?')}${x.pid===me?' (tú)':''}</b>${T.entries[x.pid]>1?`<small class="muted">${T.entries[x.pid]} entradas</small>`:''}</li>`).join('')}</ol>
+    ${admin?`<button class="link" data-a="tclear" data-tr="${T.id}">Quitar torneo de la lista</button>`:''}</article>`;
+}
+function tourForm(){
+  const opt=(o,sel)=>o.map(([v,l])=>`<option value="${v}"${String(v)===String(sel)?' selected':''}>${l}</option>`).join('');
+  const d=ui.tform||(ui.tform={name:'',variant:'holdem',limit:'nl',stack:3000,levelMin:10,timer:30,rebuyLv:0,seats:9,ante:true});
+  return `<section class="panel cform"><h2>Nuevo torneo</h2>
+    <label class="fld"><span>Nombre</span><input id="g_name" maxlength="22" placeholder="Torneo ${(V.trn||0)+1}" value="${esc(d.name)}"></label>
+    <label class="fld"><span>Juego</span><select id="g_variant">${opt(Object.entries(VAR).map(([k,v])=>[k,v.name]),d.variant)}</select></label>
+    <div class="grid2">
+      <label class="fld"><span>Apuestas</span><select id="g_limit">${opt(Object.entries(LIMITS),d.limit)}</select></label>
+      <label class="fld"><span>Fichas iniciales</span><select id="g_stack">${opt([1500,3000,5000,10000].map(x=>[x,fmt(x)]),d.stack)}</select></label>
+      <label class="fld"><span>Duración de nivel</span><select id="g_levelMin">${opt([3,5,8,10,15,20].map(x=>[x,x+' min']),d.levelMin)}</select></label>
+      <label class="fld"><span>Tiempo por turno</span><select id="g_timer">${opt([[0,'Sin límite'],[20,'20 s'],[30,'30 s'],[45,'45 s'],[60,'60 s']],d.timer)}</select></label>
+      <label class="fld"><span>Recompras</span><select id="g_rebuyLv">${opt([[0,'No (eliminación)'],[2,'Primeros 2 niveles'],[4,'Primeros 4 niveles']],d.rebuyLv)}</select></label>
+      <label class="fld"><span>Jugadores por mesa</span><select id="g_seats">${opt(Array.from({length:VAR[d.variant].max-1},(_,k)=>[k+2,String(k+2)]),Math.min(d.seats,VAR[d.variant].max))}</select></label>
+    </div>
+    <label class="chk"><input type="checkbox" id="g_ante"${d.ante?' checked':''}> Ante desde el nivel 4</label>
+    <p class="muted small">Ciegas iniciales ${tBlindsTxt({stack:+d.stack,variant:d.variant,ante:d.ante},0)}; suben así: ${[1,2,3,4,5].map(l=>tBlindsTxt({stack:+d.stack,variant:d.variant,ante:false},l)).join(' → ')}…</p>
+    <div class="row"><button class="btn ghost" data-a="tcreate">Cancelar</button><button class="btn gold" data-a="tmk">Crear torneo</button></div></section>`;
+}
+function readTForm(){const d=ui.tform;['name','variant','limit','stack','levelMin','timer','rebuyLv','seats'].forEach(k=>{const e=$('g_'+k);if(e)d[k]=e.value});const a=$('g_ante');if(a)d.ante=a.checked;return d}
+setInterval(()=>{if(!V)return;document.querySelectorAll('[data-lvl]').forEach(el=>{const T=(V.tours||[]).find(x=>x.id===+el.dataset.lvl);if(T&&!T.paused)el.textContent=mmss(levelLeft(T))})},1000);
+
 /* ---------- Mesa ---------- */
 const SUITC={s:'♠',h:'♥',d:'♦',c:'♣'};
 const cardH=(c,cls='')=>c?`<span class="cd ${cls}${'hd'.includes(c[1])?' red':''}"><b>${c[0]==='T'?'10':c[0]}</b><i>${SUITC[c[1]]}</i><em>${SUITC[c[1]]}</em></span>`:`<span class="cd back ${cls}"></span>`;
@@ -740,9 +965,9 @@ function renderTable(){
   const now=Date.now()-clockOff;
   let seatsH='', betsH='';
   t.seats.forEach((s,i)=>{
-    const a=ang(i), x=50+43*Math.cos(a), y=50+44*Math.sin(a);
+    const a=ang(i), x=50+38.5*Math.cos(a), y=50+44*Math.sin(a);
     if(!s){
-      seatsH+=`<div class="seat empty" style="left:${x}%;top:${y}%">${myI<0?`<button class="sitbtn" data-a="sit" data-s="${i}">Sentarme</button>`:'<span class="vac">Vacío</span>'}</div>`;return;
+      seatsH+=`<div class="seat empty" style="left:${x}%;top:${y}%">${myI<0&&!t.tour&&!(V.players[me]&&V.players[me].house)?`<button class="sitbtn" data-a="sit" data-s="${i}">Sentarme</button>`:'<span class="vac">Vacío</span>'}</div>`;return;
     }
     const P=V.players[s.pid]||{name:'?'}, active=h&&((h.phase==='bet'&&h.toAct===i)||(h.phase==='draw'&&h.drawTurn===i));
     const isW=h&&h.results&&h.results.some(r=>r.w.includes(i));
@@ -758,7 +983,7 @@ function renderTable(){
       ${cards?`<div class="scards${s.cards.length>3?' many':''}">${cards}</div>`:''}
       <div class="pod"><span class="av" style="--h:${hue(s.pid)}">${esc(initials(P.name))}${P.online===false?'<s>⚡</s>':''}</span>
         <div class="pinfo"><b>${esc(P.name)}</b><span class="stk">${s.allin&&!s.stack?'ALL-IN':fmt(s.stack)}</span></div>${timer}</div>
-      ${s.last?`<div class="bub${isW?' w':''}">${esc(s.last)}</div>`:s.sitOut?'<div class="bub">Ausente</div>':s.stack===0&&!s.inHand?'<div class="bub">Sin fichas</div>':''}${tag}
+      ${s.pending?`<div class="bub pend">+${fmt(s.pending)} al terminar</div>`:''}${s.last?`<div class="bub${isW?' w':''}">${esc(s.last)}</div>`:s.sitOut?'<div class="bub">Ausente</div>':s.stack===0&&!s.inHand?'<div class="bub">Sin fichas</div>':''}${tag}
     </div>`;
     if(s.bet>0){const bx=50+27*Math.cos(a),by=50+28*Math.sin(a);betsH+=`<div class="chips" style="left:${bx}%;top:${by}%"><i></i>${fmt(s.bet)}</div>`}
     if(h&&t.btn===i){const dx=50+33*Math.cos(a+.33),dy=50+34*Math.sin(a+.33);betsH+=`<div class="dealer" style="left:${dx}%;top:${dy}%">D</div>`}
@@ -780,6 +1005,7 @@ function renderTable(){
   view.innerHTML=`<div class="tablescr">
     <header class="thead"><button class="btn sm ghost" data-a="lobby">← Mesas</button><div class="tname"><b>${esc(t.name)}</b><small>${esc(VAR[t.variant].name)} · ${LIMITS[t.limit]} · ${fmt(t.sb)}/${fmt(t.bb)}</small></div><button class="btn sm ghost" data-a="rules">📖</button></header>
     ${myTablesBar()}
+    ${t.tour?tourBar(t):''}
     <div class="felt-wrap"><div class="rail"><div class="felt"><span class="logo">♠ ${esc(V.code)}</span></div></div>${center}${betsH}${seatsH}</div>
     ${myPanel(t,myI,mySeat)}
     ${chatHtml(t)}
@@ -795,11 +1021,31 @@ function renderTable(){
   }
   const ci=$('chatIn');if(ci){ci.addEventListener('input',()=>ui.chat=ci.value);ci.addEventListener('keydown',e=>{if(e.key==='Enter')clickAct('chat')})}
 }
+function tourBar(t){
+  const T=(V.tours||[]).find(x=>x.id===t.tour);if(!T)return '';
+  const alive=tourAliveV(T).length, myPlace=T.places.find(x=>x.pid===me);
+  if(T.status==='done'){const w=T.places.find(x=>x.place===1);return `<div class="tbarx done">🏆 ${esc(T.name)} terminó · gana <b>${esc(V.players[w?.pid]?.name||'—')}</b>${myPlace?' · tú quedaste #'+myPlace.place:''}</div>`}
+  return `<div class="tbarx">🏆 Nivel ${T.level+1} · ${tBlindsTxt(T,T.level)} · ${T.paused?'⏸ En pausa':'sube en <b data-lvl="'+T.id+'">'+mmss(levelLeft(T))+'</b>'} · quedan ${alive}/${T.total}${myPlace?` · <span class="place">Quedaste #${myPlace.place}</span>`:''}</div>`;
+}
+function isAdmin(t){if(isHost)return true;if(t.by===me)return true;const T=t.tour&&(V.tours||[]).find(x=>x.id===t.tour);return !!(T&&T.by===me)}
+function adminPanel(t){
+  if(!isAdmin(t))return '';
+  const seated=t.seats.map((s,i)=>s?{s,i}:null).filter(Boolean);
+  if(!ui.admin)return t.seats.findIndex(s=>s&&s.pid===me)<0&&seated.length?'<button class="link" data-a="adminToggle">⚙️ Dar fichas a jugadores</button>':'';
+  const unit=t.tour?((V.tours||[]).find(x=>x.id===t.tour)||{}).stack||t.buyin:t.buyin;
+  return `<div class="addbox"><div class="lbl">⚙️ Dar fichas a jugadores${t.tour?' (torneo)':''}</div>
+    ${seated.map(({s})=>`<div class="arow"><span class="av sm" style="--h:${hue(s.pid)}">${esc(initials(V.players[s.pid]?.name))}</span><b>${esc(V.players[s.pid]?.name||'?')}</b><small>${fmt(s.stack)}${s.pending?' +'+fmt(s.pending):''}</small>
+      ${[.5,1].map(f=>`<button data-a="addto" data-p="${s.pid}" data-amt="${Math.round(unit*f)}">+${fmt(Math.round(unit*f))}</button>`).join('')}</div>`).join('')}
+    <div class="row"><input id="addAmt" type="number" inputmode="numeric" min="1" placeholder="Otra cantidad"><select id="addWho">${seated.map(({s})=>`<option value="${s.pid}">${esc(V.players[s.pid]?.name||'?')}</option>`).join('')}</select><button class="btn sm" data-a="addcustom">Dar</button></div>
+    <small class="muted">Si el jugador está en una mano, las fichas se suman al terminarla.</small></div>`;
+}
 function myPanel(t,i,s){
   if(i<0){
     const free=t.seats.some(x=>!x);
-    return `<section class="mypanel"><p class="muted center">${free?'Estás mirando. Toca “Sentarme” en un asiento libre para jugar con '+fmt(t.buyin)+' fichas.':'La mesa está llena; puedes mirar.'}</p>
-      ${t.seats.every(x=>!x)&&(t.by===me||isHost)?'<button class="btn ghost" data-a="closeT">Cerrar esta mesa</button>':''}</section>`;
+    const house=V.players[me]&&V.players[me].house;
+    return `<section class="mypanel"><p class="muted center">${t.tour?'Estás mirando esta mesa del torneo.':house?'Modo mesa: este dispositivo muestra la mesa.':free?'Estás mirando. Toca “Sentarme” en un asiento libre para jugar con '+fmt(t.buyin)+' fichas.':'La mesa está llena; puedes mirar.'}</p>
+      ${adminPanel(t)}
+      ${!t.tour&&t.seats.every(x=>!x)&&(t.by===me||isHost)?'<button class="btn ghost" data-a="closeT">Cerrar esta mesa</button>':''}</section>`;
   }
   const h=t.hand, Vv=VAR[t.variant];
   let cards='', helper='';
@@ -831,11 +1077,20 @@ function myPanel(t,i,s){
     const who=h.phase==='draw'?h.drawTurn:h.toAct;
     act=`<p class="muted center">${who!=null&&t.seats[who]?'Turno de '+esc(V.players[t.seats[who].pid]?.name||''):h.phase==='runout'?'Repartiendo…':''}</p>`;
   }
-  const extra=s.stack===0&&!inH(s)?(t.rebuy?`<button class="btn gold" data-a="rebuy">Recomprar ${fmt(t.buyin)}</button>`:'<p class="muted center">Te quedaste sin fichas.</p>'):'';
+  const T=t.tour?(V.tours||[]).find(x=>x.id===t.tour):null;
+  let extra='';
+  if(T){if(s.stack===0&&!inH(s))extra=T.level<T.rebuyLv?`<button class="btn gold" data-a="trebuy">Recomprar ${fmt(T.stack)} (quedan ${T.rebuyLv-T.level} niveles de recompra)</button>`:'<p class="muted center">Te quedaste sin fichas.</p>'}
+  else if(t.rebuy){
+    extra=ui.addOpen?`<div class="addbox"><div class="lbl">Agregar fichas a tu lugar</div><div class="presets">${[.5,1,2].map(f=>`<button data-a="addme" data-amt="${Math.round(t.buyin*f)}">+${fmt(Math.round(t.buyin*f))}</button>`).join('')}</div>
+      <small class="muted">${inH(s)&&h&&h.phase!=='showdown'?'Se suman al terminar esta mano.':'Se suman de inmediato.'}</small></div>`:'';
+    if(s.stack===0&&!inH(s)&&!ui.addOpen)extra=`<button class="btn gold" data-a="addme" data-amt="${t.buyin}">Recargar ${fmt(t.buyin)} fichas</button>`;
+  }else if(s.stack===0&&!inH(s))extra='<p class="muted center">Te quedaste sin fichas.</p>';
   return `<section class="mypanel">
     ${cards}${helper?`<div class="helper">${esc(helper)}</div>`:''}
-    ${act}${extra}
-    <div class="seatctl"><span class="muted">Fichas: <b>${fmt(s.stack)}</b></span>
+    ${act}${extra}${adminPanel(t)}
+    <div class="seatctl"><span class="muted">Fichas: <b>${fmt(s.stack)}</b>${s.pending?' (+'+fmt(s.pending)+')':''}</span>
+      ${!t.tour&&t.rebuy?`<button class="link" data-a="addToggle">${ui.addOpen?'Cerrar':'➕ Fichas'}</button>`:''}
+      ${isAdmin(t)?`<button class="link" data-a="adminToggle">${ui.admin?'Cerrar':'⚙️ Admin'}</button>`:''}
       <button class="link" data-a="sitout">${s.sitOut?'Volver a jugar':'Ausentarme'}</button>
       <button class="link" data-a="leave">${s.leave?'Saliendo al terminar la mano…':'Levantarme'}</button></div>
   </section>`;
@@ -866,7 +1121,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b
 function clickAct(a,b){
   const t=V&&ui.tid!=null?V.tables.find(x=>x.id===ui.tid):null;
   switch(a){
-    case 'host':saveName();return hostClub(null);
+    case 'host':saveName();houseMode=!!($('houseIn')||{}).checked;return hostClub(null);
     case 'resume':{saveName();const s=store.get('pk_host');if(s)return hostClub(s);return}
     case 'join':saveName();return joinClub(($('codeIn')||{}).value);
     case 'quit':
@@ -877,9 +1132,18 @@ function clickAct(a,b){
     case 'invite':{const url=shareUrl(V.code);if(navigator.share)navigator.share({title:'Club de Póker',text:'Únete a mi club de póker: código '+V.code,url}).catch(()=>{});
       else navigator.clipboard.writeText(url).then(()=>{b.textContent='Enlace copiado ✓'},()=>{b.textContent=url});return}
     case 'tab':ui.tab=b.dataset.v;return render();
+    case 'tcreate':ui.tcreate=!ui.tcreate;return render();
+    case 'tmk':{const d=readTForm();send({k:'tmk',...d});ui.tcreate=false;ui.tform=null;return}
+    case 'treg':case 'tstart':case 'tcancel':case 'tpause':case 'tclear':return send({k:a,trid:+b.dataset.tr});
+    case 'trebuy':return send({k:'trebuy',tid:t.id});
+    case 'addToggle':ui.addOpen=!ui.addOpen;return render();
+    case 'adminToggle':ui.admin=!ui.admin;return render();
+    case 'addme':ui.addOpen=false;return send({k:'add',tid:t.id,amt:+b.dataset.amt});
+    case 'addto':return send({k:'add',tid:t.id,to:b.dataset.p,amt:+b.dataset.amt});
+    case 'addcustom':{const amt=Math.floor(+(($('addAmt')||{}).value||0)),to=($('addWho')||{}).value;if(amt>0&&to)send({k:'add',tid:t.id,to,amt});return}
     case 'create':ui.create=!ui.create;return render();
     case 'mk':{const d=readForm();send({k:'mk',...d,bb:+d.bb,buyBB:+d.buyBB,max:+d.max,timer:+d.timer,ante:+d.ante});ui.create=false;ui.form=null;return}
-    case 'open':ui.screen='table';ui.tid=+b.dataset.t;ui.raise=null;ui.drawSel=new Set();window.scrollTo(0,0);return render();
+    case 'open':ui.screen='table';ui.tid=+b.dataset.t;ui.raise=null;ui.drawSel=new Set();ui.addOpen=false;ui.admin=false;window.scrollTo(0,0);return render();
     case 'lobby':ui.screen='lobby';return render();
     case 'rename':{const v=clean(($('renameIn')||{}).value);if(v){myName=v;try{localStorage.setItem('pk_name',v)}catch(_){}send({k:'name',name:v})}return}
     case 'sit':return send({k:'sit',tid:t.id,s:+b.dataset.s});
@@ -897,6 +1161,8 @@ function clickAct(a,b){
   }
 }
 document.addEventListener('change',e=>{
+  if(e.target.id==='g_variant'&&ui.tform){readTForm();const v=ui.tform.variant;ui.tform.limit=VAR[v].limit;ui.tform.seats=Math.min(+ui.tform.seats,VAR[v].max);return render()}
+  if(e.target.id&&e.target.id.startsWith('g_')&&ui.tform){readTForm();return render()}
   if(e.target.id==='f_variant'&&ui.form){readForm();const v=ui.form.variant;ui.form.limit=VAR[v].limit;ui.form.max=Math.min(+ui.form.max,VAR[v].max);render()}
 });
 
@@ -936,10 +1202,15 @@ function rulesHtml(){
   <li><b>Límite fijo (FL):</b> apuestas de tamaño fijo: 1 ciega grande en las primeras rondas y 2 en las últimas; máximo 4 apuestas por ronda.</li></ul>
   <h3>All-in y botes secundarios</h3>
   <p>Si no tienes fichas para igualar, vas all-in con lo que tengas y sólo puedes ganar de cada rival lo mismo que tú pusiste. El resto forma un <b>bote secundario</b> entre los demás. La app calcula todo automáticamente.</p>
+  <h3>Torneos</h3>
+  <p>Todos pagan la misma entrada y empiezan con las mismas fichas. Las ciegas suben cada nivel (por tiempo). Quien se queda sin fichas queda eliminado (salvo en el periodo de recompras). Si hay varias mesas, la app mueve jugadores para equilibrarlas y las va juntando hasta la mesa final. Gana quien se queda con todas las fichas.</p>
+  <h3>Fichas</h3>
+  <p>En mesas normales puedes recargar tus fichas con <b>➕ Fichas</b> si la mesa permite recompras. El anfitrión o quien creó la mesa puede dar fichas a cualquiera desde <b>⚙️ Admin</b>. Si estás jugando una mano, las fichas se suman al terminarla.</p>
   <h3>En esta app</h3>
   <ul><li>Un club puede tener hasta ${MAX_TABLES} mesas al mismo tiempo, y puedes sentarte en varias; arriba aparecen tus mesas y se marca ⏰ donde te toca.</li>
   <li>Si se acaba tu tiempo de turno: pasas si puedes, si no te retiras. Dos veces seguidas te marcan como ausente.</li>
   <li>Las cartas de los demás no llegan a tu celular hasta el enfrentamiento.</li>
+  <li>Si quien abrió el club cambia de app, el juego se pausa y sigue al regresar; todos se reconectan solos. Para que nunca se pause, abre el club en una compu o tablet en “modo mesa”.</li>
   <li>Se juega con fichas, sin dinero real.</li></ul>
   </div></div></div>`;
 }
@@ -947,6 +1218,8 @@ function rulesHtml(){
 /* ---------- Arranque ---------- */
 (function boot(){
   const q=new URLSearchParams(location.search).get('club');
+  const saved=store.get('pk_host');
+  if(q&&saved&&saved.C&&saved.C.code===q.toUpperCase()&&Date.now()-saved.at<12*3600e3)return hostClub(saved);
   if(q&&/^[A-Za-z0-9]{4}$/.test(q)){if(myName)return joinClub(q);renderHome();const ci=$('codeIn');if(ci)ci.value=q.toUpperCase();return}
   renderHome();
 })();
