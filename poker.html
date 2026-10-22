@@ -133,7 +133,8 @@ input.code{text-transform:uppercase;letter-spacing:.3em;text-align:center;font-s
 .seat.active .pod{border-color:#fff;box-shadow:0 0 0 2px var(--gold),0 0 16px rgba(227,181,76,.6)}
 .seat.out .pod{opacity:.55}.seat.away .pod{opacity:.45}
 .seat.win .pod{box-shadow:0 0 0 2px #7ee2a0,0 0 18px rgba(126,226,160,.6)}
-.tbar{position:absolute;left:0;bottom:0;height:3px;width:100%;background:var(--gold);transform-origin:left;animation:tbar linear forwards}
+.tbar{position:absolute;left:14%;bottom:0;height:4px;width:72%;border-radius:2px;background:var(--gold);transform-origin:left;transition:transform .2s linear}
+.tbar.low{background:var(--red)}
 @keyframes tbar{from{transform:scaleX(1)}to{transform:scaleX(0);background:var(--red)}}
 .scards{display:flex;justify-content:center;margin-bottom:-6px;z-index:1;position:relative}
 .scards .cd{margin:0 -3px}.scards.many .cd{margin:0 -6px}
@@ -254,7 +255,79 @@ input.code{text-transform:uppercase;letter-spacing:.3em;text-align:center;font-s
 .minicards{display:flex;gap:3px;justify-content:center}
 .minicards .cd{--w:30px}
 .waitl{font-size:12px;color:var(--muted)}
-@media (prefers-reduced-motion:reduce){.tbar,.mtab.turn{animation:none}}
+
+/* ===== Reloj de turno ===== */
+.tnum{position:absolute;right:-8px;top:-10px;z-index:4;min-width:24px;height:24px;border-radius:999px;background:var(--gold);color:#2a1b02;font:800 13px var(--body);font-style:normal;
+  display:grid;place-items:center;padding:0 5px;box-shadow:0 2px 6px rgba(0,0,0,.5);font-variant-numeric:tabular-nums}
+.tnum.low{background:var(--red);color:#fff;animation:tick 1s ease-in-out infinite}
+.seat .pod{overflow:visible}
+@keyframes tick{50%{transform:scale(1.18)}}
+.myclock{display:flex;align-items:center;gap:10px;background:rgba(227,181,76,.12);border:1px solid var(--gold2);border-radius:14px;padding:8px 10px}
+.myclock.low{background:rgba(216,68,58,.18);border-color:var(--red)}
+.ring{--f:1;position:relative;width:52px;height:52px;flex:none}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .rt{fill:none;stroke:rgba(255,255,255,.12);stroke-width:4}
+.ring .rp{fill:none;stroke:var(--gold);stroke-width:4;stroke-linecap:round;stroke-dasharray:119.4;stroke-dashoffset:calc(119.4*(1 - var(--f)));transition:stroke-dashoffset .2s linear}
+.ring.low .rp{stroke:var(--red)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font:800 18px var(--body);font-variant-numeric:tabular-nums}
+.ring b.low{color:#ff8a80}
+.cinfo{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.2}.cinfo small{color:var(--muted);font-size:11px}
+.myclock .btn{display:flex;flex-direction:column;align-items:center;line-height:1.1}.myclock .btn small{font-size:10px;font-weight:600}
+/* ===== Solicitudes ===== */
+.reqfab{position:fixed;right:max(14px,env(safe-area-inset-right,0px));top:calc(62px + env(safe-area-inset-top,0px));z-index:40;background:linear-gradient(180deg,#f2cf72,#c99532);color:#2a1b02;
+  border:0;border-radius:999px;padding:12px 16px;font:800 14px var(--body);box-shadow:0 6px 18px rgba(0,0,0,.5);cursor:pointer;animation:fabpulse 1.4s ease-in-out infinite}
+@keyframes fabpulse{50%{box-shadow:0 0 0 8px rgba(227,181,76,.25),0 6px 18px rgba(0,0,0,.5)}}
+.reqrow{display:flex;flex-direction:column;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.reqrow small{display:block;color:var(--muted)}.reqrow .row{flex-wrap:wrap}.reqrow .row .btn{flex:none}
+.reqbox{background:rgba(227,181,76,.12);border:1px dashed var(--gold2);border-radius:12px;padding:10px;font-size:13px;text-align:center}
+
+/* ===== FONDOS ANIMADOS ===== */
+#app{position:relative;z-index:1}
+:root[data-amb] body::before,:root[data-amb] body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0}
+.felt{position:relative;overflow:hidden}
+.felt::after{content:"";position:absolute;inset:-20%;background:linear-gradient(100deg,transparent 40%,rgba(255,255,255,.07) 50%,transparent 60%);animation:sweep 9s ease-in-out infinite;pointer-events:none}
+@keyframes sweep{0%{transform:translateX(-60%)}55%,100%{transform:translateX(60%)}}
+/* Casino clásico: reflector que respira */
+:root[data-amb="clasico"] body::before{background:radial-gradient(ellipse 60% 40% at 50% 0,rgba(255,236,170,.18),transparent 70%);animation:breathe 6s ease-in-out infinite}
+@keyframes breathe{50%{opacity:.45}}
+/* Las Vegas: neón que cambia de color y luces del riel */
+:root[data-amb="vegas"] body::before{background:radial-gradient(circle at 15% 0,rgba(255,0,140,.45),transparent 40%),radial-gradient(circle at 85% 10%,rgba(0,200,255,.4),transparent 40%);animation:neon 7s linear infinite}
+@keyframes neon{to{filter:hue-rotate(360deg)}}
+.amb-vegas .rail{animation:marquee 1.6s steps(2) infinite}
+@keyframes marquee{50%{box-shadow:0 0 0 2px rgba(0,220,255,.9),0 0 30px rgba(0,220,255,.6),0 14px 30px rgba(0,0,0,.6)}}
+/* Montecarlo: destellos dorados que cruzan */
+:root[data-amb="monaco"] body::before{background:repeating-linear-gradient(115deg,transparent 0 60px,rgba(233,201,120,.07) 60px 62px);animation:slide 18s linear infinite}
+@keyframes slide{to{background-position:400px 0}}
+/* Cantina: papel picado que ondea */
+:root[data-amb="cantina"] body::before{bottom:auto;height:46px;top:env(safe-area-inset-top,0px);
+  background:conic-gradient(from 135deg at 50% 0,#e91e63 0 90deg,transparent 0) 0 0/44px 26px repeat-x,conic-gradient(from 135deg at 50% 0,#43a047 0 90deg,transparent 0) 22px 0/44px 26px repeat-x;
+  transform-origin:top;animation:flutter 2.6s ease-in-out infinite}
+@keyframes flutter{0%,100%{transform:skewX(-4deg) scaleY(1)}50%{transform:skewX(4deg) scaleY(1.12)}}
+/* Playa: olas y sol */
+:root[data-amb="playa"] body::after{top:auto;height:90px;background:radial-gradient(ellipse 40px 14px at 50% 100%,rgba(255,255,255,.35) 0 60%,transparent 62%) 0 100%/80px 30px repeat-x,
+  linear-gradient(180deg,transparent,rgba(16,100,140,.65));animation:waves 4s linear infinite}
+@keyframes waves{to{background-position:80px 100%,0 0}}
+:root[data-amb="playa"] body::before{background:radial-gradient(circle at 50% 18%,rgba(255,240,160,.5),transparent 18%);animation:breathe 5s ease-in-out infinite}
+/* Espacio: estrellas que titilan y nebulosa que se mueve */
+:root[data-amb="espacio"] body::before{background:radial-gradient(1.5px 1.5px at 15% 25%,#fff,transparent),radial-gradient(2px 2px at 65% 15%,#cfe8ff,transparent),radial-gradient(1.5px 1.5px at 85% 55%,#fff,transparent),radial-gradient(2px 2px at 35% 75%,#fff,transparent),radial-gradient(1.5px 1.5px at 55% 45%,#ffe,transparent);
+  background-size:230px 230px;animation:twinkle 3s ease-in-out infinite alternate}
+:root[data-amb="espacio"] body::after{background:radial-gradient(ellipse at 30% 40%,rgba(160,80,255,.25),transparent 45%),radial-gradient(ellipse at 70% 70%,rgba(0,180,255,.18),transparent 45%);animation:drift 22s ease-in-out infinite alternate}
+@keyframes twinkle{from{opacity:.25}to{opacity:1}}
+@keyframes drift{to{transform:translate(6%,-5%) scale(1.15)}}
+/* Club privado: chispas doradas */
+:root[data-amb="vip"] body::before{background:radial-gradient(2px 2px at 20% 30%,rgba(255,215,120,.9),transparent),radial-gradient(1.5px 1.5px at 70% 20%,rgba(255,215,120,.8),transparent),radial-gradient(2px 2px at 45% 80%,rgba(255,215,120,.7),transparent),radial-gradient(1.5px 1.5px at 85% 65%,rgba(255,215,120,.9),transparent);
+  background-size:260px 260px;animation:twinkle 2.2s ease-in-out infinite alternate,rise 30s linear infinite}
+@keyframes rise{to{background-position:0 -520px}}
+/* Viejo Oeste: polvo que flota y lámpara que parpadea */
+:root[data-amb="saloon"] body::before{background:radial-gradient(1.5px 1.5px at 10% 20%,rgba(255,220,170,.6),transparent),radial-gradient(1px 1px at 60% 70%,rgba(255,220,170,.5),transparent),radial-gradient(2px 2px at 80% 30%,rgba(255,220,170,.4),transparent);
+  background-size:200px 200px;animation:dust 26s linear infinite}
+:root[data-amb="saloon"] body::after{background:radial-gradient(ellipse 50% 35% at 50% 0,rgba(255,190,90,.22),transparent 70%);animation:flicker 4s steps(1) infinite}
+@keyframes dust{to{background-position:300px -200px}}
+@keyframes flicker{0%,100%{opacity:1}42%{opacity:.6}44%{opacity:1}71%{opacity:.75}73%{opacity:1}}
+/* Apagar animaciones */
+.noanim *,.noanim *::before,.noanim *::after,.noanim body::before,.noanim body::after{animation:none!important}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after,body::before,body::after{animation:none!important}}
+
 @media (max-width:360px){.seat{width:26%}.pinfo b,.stk{font-size:11px}}
 </style>
 </head>
@@ -346,7 +419,7 @@ function upScore(cards){
 }
 
 /* ---- dinámica de una mano ---- */
-function seatBlank(pid,stack){return {pid,stack,sitOut:false,leave:false,timeouts:0,inHand:false,folded:false,allin:false,bet:0,total:0,cards:[],up:[],acted:false,canRaise:true,last:'',shown:false,drew:null,win:0,best:null}}
+function seatBlank(pid,stack){return {pid,stack,ext:3,sitOut:false,leave:false,timeouts:0,inHand:false,folded:false,allin:false,bet:0,total:0,cards:[],up:[],acted:false,canRaise:true,last:'',shown:false,drew:null,win:0,best:null}}
 function put(t,s,amt){const x=Math.max(0,Math.min(amt,s.stack));s.stack-=x;s.bet+=x;s.total+=x;if(s.stack===0&&s.inHand)s.allin=true;return x}
 function flUnit(t){const h=t.hand,V=VAR[t.variant];
   if(V.stud)return h.street<=4?t.bb:2*t.bb;
@@ -690,23 +763,38 @@ function handle(pid,a){
     case 'close':if(t&&(t.by===pid||pid==='p0')&&t.seats.every(s=>!s))C.tables=C.tables.filter(x=>x!==t);break;
     case 'sit':{if(!t||t.tour||P.house||seatOf(t,pid)>=0)return;const i=a.s|0;if(i<0||i>=t.seats.length||t.seats[i])return;
       t.seats[i]=seatBlank(pid,t.buyin);const L=t.ledger[pid]||(t.ledger[pid]={buy:0,out:0});L.buy+=t.buyin;break;}
-    case 'leave':{if(!t)return;const i=seatOf(t,pid);if(i<0)return;const s=t.seats[i];
+    case 'leave':{if(!t)return;const i=seatOf(t,pid);if(i<0)return;const s=t.seats[i];C.reqs=(C.reqs||[]).filter(r=>!(r.pid===pid&&r.tid===t.id));
       if(t.tour){s.sitOut=true;break}
       if(t.hand&&inH(s)&&t.hand.phase!=='showdown'){s.leave=true;foldOut(t,i)}
       else if(t.hand&&t.hand.phase==='showdown'&&s.inHand){s.leave=true}
       else{t.ledger[pid].out+=s.stack;t.seats[i]=null}
       break;}
     case 'sitout':{if(!t)return;const s=t.seats[seatOf(t,pid)];if(!s)return;s.sitOut=!s.sitOut;s.timeouts=0;break;}
-    case 'rebuy':{if(!t||!t.rebuy||t.tour)return;const s=t.seats[seatOf(t,pid)];if(!s||s.stack>0||inH(s))return;s.stack=t.buyin;s.sitOut=false;t.ledger[pid].buy+=t.buyin;break;}
     case 'add':{
       if(!t)return;const target=a.to||pid, i=seatOf(t,target);if(i<0)return;const s=t.seats[i];
-      const admin=pid==='p0'||t.by===pid||(t.tour&&(C.tours.find(T=>T.id===t.tour)||{}).by===pid);
-      if(!admin&&(target!==pid||!t.rebuy||t.tour))return;
+      if(pid!=='p0')return;
       const amt=Math.floor(+a.amt||0);if(!(amt>0&&amt<=1e8))return;
-      if(t.hand&&inH(s)&&t.hand.phase!=='showdown')s.pending=(s.pending||0)+amt;else s.stack+=amt;
-      s.sitOut=false;s.timeouts=0;const L=t.ledger[target]||(t.ledger[target]={buy:0,out:0});L.buy+=amt;
-      pushLog(t,(target===pid?pname(pid)+' agregó ':pname(pid)+' le dio ')+fmt(amt)+' fichas'+(target===pid?'':' a '+pname(target))+(s.pending?' (al terminar la mano)':''));
+      giveChips(t,s,amt);C.reqs=(C.reqs||[]).filter(r=>!(r.pid===target&&r.tid===t.id));
       break;}
+    case 'req':{
+      if(!t)return;const s=t.seats[seatOf(t,pid)];if(!s)return;C.reqs=(C.reqs||[]).filter(r=>!(r.pid===pid&&r.tid===t.id));
+      if(t.tour){const T=C.tours.find(x=>x.id===t.tour);if(!T||s.stack>0||inH(s)||T.level>=T.rebuyLv)return;
+        C.reqs.push({id:(C.rq=(C.rq||0)+1),pid,tid:t.id,amt:T.stack,kind:'trebuy',at:Date.now()})}
+      else{const amt=Math.round(t.buyin*(+a.f||1));if(![.5,1,2].includes(+a.f||1))return;C.reqs.push({id:(C.rq=(C.rq||0)+1),pid,tid:t.id,amt,kind:'chips',at:Date.now()})}
+      pushLog(t,'🙋 '+pname(pid)+' pidió fichas al anfitrión');break;}
+    case 'reqcancel':{C.reqs=(C.reqs||[]).filter(r=>!(r.id===a.rid&&r.pid===pid));break;}
+    case 'reqok':case 'reqno':{
+      if(pid!=='p0')return;const r=(C.reqs||[]).find(x=>x.id===a.rid);if(!r)return;C.reqs=C.reqs.filter(x=>x!==r);
+      const tt=C.tables.find(x=>x.id===r.tid), s=tt&&tt.seats[seatOf(tt,r.pid)];
+      if(!tt||!s)break;
+      if(a.k==='reqno'){pushLog(tt,'✋ El anfitrión no autorizó las fichas de '+pname(r.pid));break}
+      if(r.kind==='trebuy'){const T=C.tours.find(x=>x.id===tt.tour);if(!T||s.stack>0||T.level>=T.rebuyLv)break;
+        s.stack=T.stack;s.sitOut=false;T.entries[r.pid]=(T.entries[r.pid]||1)+1;T.total++;pushLog(tt,'✅ '+pname(r.pid)+' recompró '+fmt(T.stack)+' (autorizado)');break}
+      const amt=Math.floor(+a.amt||r.amt);if(!(amt>0&&amt<=1e8))break;giveChips(tt,s,amt);break;}
+    case 'ext':{
+      if(!t||!t.hand||!t.timer)return;const i=seatOf(t,pid),s=t.seats[i],h=t.hand;if(!s||!(s.ext>0))return;
+      if(!((h.phase==='bet'&&h.toAct===i)||(h.phase==='draw'&&h.drawTurn===i)))return;
+      s.ext--;h.actStart+=30000;pushLog(t,'⏱ '+pname(pid)+' usó 30 s extra (le quedan '+s.ext+')');break;}
     case 'look':{if(!t)return;const admin=pid==='p0'||t.by===pid;if(!admin&&seatOf(t,pid)<0)return;
       if(a.amb){t.amb=okAmb(a.amb);pushLog(t,'🎨 '+pname(pid)+' cambió el ambiente a '+AMBS[t.amb][0])}
       if(a.deck){t.deck=okDeck(a.deck);pushLog(t,'🃏 '+pname(pid)+' cambió las cartas a '+DECKS[t.deck])}break;}
@@ -730,9 +818,7 @@ function handle(pid,a){
     case 'tpause':{const T=C.tours.find(x=>x.id===a.trid);if(!T||T.status!=='run'||(T.by!==pid&&pid!=='p0'))return;
       const now=Date.now();if(T.paused){T.levelStart+=now-T.pausedAt;T.paused=false}else{T.paused=true;T.pausedAt=now}
       tourTables(T).forEach(x=>{x.hold=T.paused;pushLog(x,T.paused?'⏸ Torneo en pausa (se termina la mano en curso)':'▶️ Se reanuda el torneo')});break;}
-    case 'trebuy':{if(!t||!t.tour)return;const T=C.tours.find(x=>x.id===t.tour);const s=t.seats[seatOf(t,pid)];
-      if(!T||!s||s.stack>0||inH(s)||T.level>=T.rebuyLv)return;s.stack=T.stack;s.sitOut=false;T.entries[pid]=(T.entries[pid]||1)+1;T.total++;
-      pushLog(t,pname(pid)+' recompró '+fmt(T.stack));break;}
+
     case 'tclear':{const T=C.tours.find(x=>x.id===a.trid);if(!T||T.status!=='done'||(T.by!==pid&&pid!=='p0'))return;
       tourTables(T).forEach(x=>{C.tables=C.tables.filter(y=>y!==x)});C.tours=C.tours.filter(x=>x!==T);break;}
     case 'act':{if(!t)return;const i=seatOf(t,pid);if(i<0)return;t.seats[i].timeouts=0;if(!doAction(t,i,a.a,a.to))return;break;}
@@ -816,6 +902,11 @@ function tourBalance(T,t){
 }
 
 
+function giveChips(t,s,amt){
+  if(t.hand&&inH(s)&&t.hand.phase!=='showdown')s.pending=(s.pending||0)+amt;else s.stack+=amt;
+  s.sitOut=false;s.timeouts=0;const L=t.ledger[s.pid]||(t.ledger[s.pid]={buy:0,out:0});L.buy+=amt;
+  pushLog(t,'✅ El anfitrión le dio '+fmt(amt)+' fichas a '+pname(s.pid)+(s.pending?' (al terminar la mano)':''));
+}
 function fillFromWait(t){
   if(!t.wait||!t.wait.length)return false;let ch=false;
   t.wait=t.wait.filter(pid=>C.players[pid]&&seatOf(t,pid)<0);
@@ -925,7 +1016,7 @@ function render(){
   if(ui.screen==='table'&&!V.tables.find(t=>t.id===ui.tid))ui.screen='lobby';
   if(ui.screen==='table')renderTable(); else renderLobby();
   if(chatFocus){const ci=$('chatIn');if(ci){ci.focus();ci.setSelectionRange(ci.value.length,ci.value.length)}}
-  turnAlert();
+  turnAlert();reqAlert();
 }
 function myNet(pid){let n=0;V.tables.forEach(t=>{const L=t.ledger[pid];if(L){n+=L.out-L.buy;const i=t.seats.findIndex(s=>s&&s.pid===pid);if(i>=0)n+=t.seats[i].stack+(t.seats[i].bet||0)}});return n}
 function myTurnAt(t){const h=t.hand;if(!h)return false;const i=t.seats.findIndex(s=>s&&s.pid===me);if(i<0)return false;return (h.phase==='bet'&&h.toAct===i)||(h.phase==='draw'&&h.drawTurn===i)}
@@ -965,6 +1056,7 @@ function renderLobby(){
     :`<section class="panel"><div class="lbl">Tabla de ganancias (fichas)</div>
       <ol class="board-list">${players.map(([pid,p])=>{const n=myNet(pid);return `<li><span class="av sm" style="--h:${hue(pid)}">${esc(initials(p.name))}</span><b>${esc(p.name)}${pid===me?' (tú)':''}</b>${p.online?'':'<small class="muted"> · fuera</small>'}<span class="net ${n>0?'up':n<0?'dn':''}">${n>0?'+':''}${fmt(n)}</span></li>`}).join('')}</ol>
       <label class="fld"><span>Tu nombre</span><div class="row"><input id="renameIn" maxlength="14" value="${esc(V.players[me]?V.players[me].name:myName)}"><button class="btn sm" data-a="rename">Guardar</button></div></label></section>`}
+    ${reqFab()}${ui.reqs?reqsHtml():''}
     <footer class="foot"><span class="cdot${connected?'':' off'}"></span>${connected?(isHost?'Eres el anfitrión: deja esta app abierta':'Conectado'):'Reconectando…'} · <button class="link" data-a="quit">Salir del club</button></footer>
   </div>${ui.rules?rulesHtml():''}`;
 }
@@ -1079,7 +1171,7 @@ function renderTable(){
       else cards=s.cards.map(c=>cardH(c,'xs'+(s.shown?'':' hid'))).join('');
     }
     let timer='';
-    if(active&&t.timer){const el=Math.max(0,(now-h.actStart)/1000),tot=t.timer;timer=`<i class="tbar" style="animation-duration:${tot}s;animation-delay:-${Math.min(el,tot)}s"></i>`}
+    if(active&&t.timer){const dl=h.actStart+t.timer*1000,rem=Math.max(0,dl-now);timer=`<i class="tbar" data-dl="${dl}" data-tot="${t.timer*1000}" style="transform:scaleX(${Math.min(1,rem/(t.timer*1000))})"></i><em class="tnum" data-dlnum="${dl}">${Math.ceil(rem/1000)}</em>`}
     const tag=h&&h.sbI===i&&h.phase!=='showdown'&&h.street===0&&!Vv.stud?'<u>CP</u>':h&&h.bbI===i&&h.street===0&&h.phase!=='showdown'&&!Vv.stud?'<u>CG</u>':'';
     seatsH+=`<div class="seat${s.pid===me?' me':''}${active?' active':''}${s.folded||!s.inHand?' out':''}${isW?' win':''}${s.sitOut?' away':''}" style="left:${x}%;top:${y}%">
       ${cards?`<div class="scards${s.cards.length>3?' many':''}">${cards}</div>`:''}
@@ -1113,7 +1205,7 @@ function renderTable(){
     ${myPanel(t,myI,mySeat)}
     ${chatHtml(t)}
     <div class="loglist">${t.log.slice(-4).reverse().map(l=>`<div>#${l.n} · ${esc(l.txt)}</div>`).join('')}</div>
-  </div>${ui.rules?rulesHtml():''}${ui.style?styleHtml(t):''}`;
+  </div>${ui.rules?rulesHtml():''}${ui.style?styleHtml(t):''}${ui.reqs?reqsHtml():''}${reqFab()}`;
   const rz=$('rz');
   if(rz){
     const upd=()=>{ui.raise=+rz.value;const l=$('rzv');if(l)l.textContent=fmt(rz.value)};
@@ -1130,16 +1222,27 @@ function tourBar(t){
   if(T.status==='done'){const w=T.places.find(x=>x.place===1);return `<div class="tbarx done">🏆 ${esc(T.name)} terminó · gana <b>${esc(V.players[w?.pid]?.name||'—')}</b>${myPlace?' · tú quedaste #'+myPlace.place:''}</div>`}
   return `<div class="tbarx">🏆 Nivel ${T.level+1} · ${tBlindsTxt(T,T.level)} · ${T.paused?'⏸ En pausa':'sube en <b data-lvl="'+T.id+'">'+mmss(levelLeft(T))+'</b>'} · quedan ${alive}/${T.total}${myPlace?` · <span class="place">Quedaste #${myPlace.place}</span>`:''}</div>`;
 }
+function reqsHtml(){
+  const R=V.reqs||[];
+  return `<div class="modal"><div class="mbox"><header><h2>🙋 Solicitudes de fichas</h2><button class="btn sm ghost" data-a="reqsClose">Cerrar</button></header>
+    <div class="rules">${R.length?R.map(r=>{const t=V.tables.find(x=>x.id===r.tid);const s=t&&t.seats.find(x=>x&&x.pid===r.pid);const unit=t?t.buyin:r.amt;
+      return `<div class="reqrow"><div><b>${esc(V.players[r.pid]?.name||'?')}</b><small>${esc(t?t.name:'')} · tiene ${fmt(s?s.stack:0)} · ${r.kind==='trebuy'?'recompra de torneo':'pide'} <b>${fmt(r.amt)}</b></small></div>
+        <div class="row">${r.kind==='trebuy'?`<button class="btn sm gold" data-a="reqok" data-r="${r.id}">Aprobar</button>`:[...new Set([r.amt,Math.round(unit/2),unit,unit*2])].sort((a,b)=>a-b).map(x=>`<button class="btn sm ${x===r.amt?'gold':'ghost'}" data-a="reqok" data-r="${r.id}" data-amt="${x}">+${fmt(x)}</button>`).join('')}
+        <button class="btn sm red" data-a="reqno" data-r="${r.id}">No</button></div></div>`}).join(''):'<p class="muted center">No hay solicitudes pendientes.</p>'}
+    <p class="muted small">Sólo tú, como anfitrión, puedes dar fichas. También puedes dárselas a cualquiera desde ⚙️ Admin en cada mesa.</p></div></div></div>`;
+}
+function reqFab(){const n=(V.reqs||[]).length;return isHost&&n?`<button class="reqfab" data-a="reqsOpen">🙋 ${n} ${n===1?'solicitud':'solicitudes'}</button>`:''}
 function styleHtml(t){
   const can=isHost||t.by===me||t.seats.some(s=>s&&s.pid===me);
   const ex=['As','Kh','Qd','Jc'];
   return `<div class="modal"><div class="mbox"><header><h2>🎨 Estilo de la mesa</h2><button class="btn sm ghost" data-a="closeStyle">Listo</button></header>
     <div class="rules">${can?'<p class="muted">Lo que elijas lo ven todos en esta mesa.</p>':'<p class="muted">Sólo quienes están sentados en la mesa pueden cambiar el estilo.</p>'}
+    <label class="chk"><input type="checkbox" id="animIn"${animOn?' checked':''}> ✨ Fondos animados en este celular</label>
     <h3>Ambiente</h3><div class="sgrid">${Object.entries(AMBS).map(([k,[n,ic]])=>`<button class="stile amb amb-${k}${okAmb(t.amb)===k?' on':''}" data-a="look" data-amb="${k}" ${can?'':'disabled'}><span class="mini"><i></i></span>${ic} ${n}</button>`).join('')}</div>
     <h3>Cartas</h3><div class="sgrid">${Object.entries(DECKS).map(([k,n])=>`<button class="stile deck-${k}${okDeck(t.deck)===k?' on':''}" data-a="look" data-deck="${k}" ${can?'':'disabled'}><span class="minicards">${ex.map(c=>cardH(c)).join('')}${cardH(null)}</span>${n}</button>`).join('')}</div>
     </div></div></div>`;
 }
-function isAdmin(t){if(isHost)return true;if(t.by===me)return true;const T=t.tour&&(V.tours||[]).find(x=>x.id===t.tour);return !!(T&&T.by===me)}
+function isAdmin(t){return isHost}
 function adminPanel(t){
   if(!isAdmin(t))return '';
   const seated=t.seats.map((s,i)=>s?{s,i}:null).filter(Boolean);
@@ -1170,6 +1273,10 @@ function myPanel(t,i,s){
     helper=b?b.name:(Vv.omaha?'':partialName(Vv.stud?s.cards:s.cards));
   }
   let act='';
+  const myTurnNow=h&&((h.phase==='bet'&&h.toAct===i)||(h.phase==='draw'&&h.drawTurn===i));
+  const clock=myTurnNow&&t.timer?`<div class="myclock"><div class="ring" data-dl="${h.actStart+t.timer*1000}" data-tot="${t.timer*1000}"><svg viewBox="0 0 44 44"><circle class="rt" cx="22" cy="22" r="19"/><circle class="rp" cx="22" cy="22" r="19"/></svg><b data-dlnum="${h.actStart+t.timer*1000}">${t.timer}</b></div>
+    <div class="cinfo"><b>¡Te toca!</b><small>Si se acaba el tiempo, pasas o te retiras.</small></div>
+    <button class="btn sm ${s.ext>0?'gold':'ghost'}" data-a="ext" ${s.ext>0?'':'disabled'}>⏱ +30 s<small>${s.ext} ${s.ext===1?'queda':'quedan'}</small></button></div>`:'';
   if(h&&h.phase==='bet'&&h.toAct===i){
     const L=legal(t,i);
     let r=ui.raise; if(r==null||r<L.minTo||r>L.maxTo)r=L.minTo;
@@ -1193,17 +1300,17 @@ function myPanel(t,i,s){
   }
   const T=t.tour?(V.tours||[]).find(x=>x.id===t.tour):null;
   let extra='';
-  if(T){if(s.stack===0&&!inH(s))extra=T.level<T.rebuyLv?`<button class="btn gold" data-a="trebuy">Recomprar ${fmt(T.stack)} (quedan ${T.rebuyLv-T.level} niveles de recompra)</button>`:'<p class="muted center">Te quedaste sin fichas.</p>'}
-  else if(t.rebuy){
-    extra=ui.addOpen?`<div class="addbox"><div class="lbl">Agregar fichas a tu lugar</div><div class="presets">${[.5,1,2].map(f=>`<button data-a="addme" data-amt="${Math.round(t.buyin*f)}">+${fmt(Math.round(t.buyin*f))}</button>`).join('')}</div>
-      <small class="muted">${inH(s)&&h&&h.phase!=='showdown'?'Se suman al terminar esta mano.':'Se suman de inmediato.'}</small></div>`:'';
-    if(s.stack===0&&!inH(s)&&!ui.addOpen)extra=`<button class="btn gold" data-a="addme" data-amt="${t.buyin}">Recargar ${fmt(t.buyin)} fichas</button>`;
-  }else if(s.stack===0&&!inH(s))extra='<p class="muted center">Te quedaste sin fichas.</p>';
+  const myReq=(V.reqs||[]).find(r=>r.pid===me&&r.tid===t.id);
+  if(myReq)extra=`<div class="reqbox">🙋 Pediste ${fmt(myReq.amt)} fichas · esperando al anfitrión… <button class="link" data-a="reqcancel" data-r="${myReq.id}">Cancelar</button></div>`;
+  else if(T){if(s.stack===0&&!inH(s))extra=T.level<T.rebuyLv?`<button class="btn gold" data-a="req">🙋 Pedir recompra de ${fmt(T.stack)} al anfitrión</button>`:'<p class="muted center">Te quedaste sin fichas.</p>'}
+  else if(ui.addOpen&&!isHost)extra=`<div class="addbox"><div class="lbl">¿Cuántas fichas le pides al anfitrión?</div><div class="presets">${[.5,1,2].map(f=>`<button data-a="req" data-f="${f}">${fmt(Math.round(t.buyin*f))}</button>`).join('')}</div>
+      <small class="muted">El anfitrión decide si te las da. Si estás en una mano, se suman al terminarla.</small></div>`;
+  else if(s.stack===0&&!inH(s))extra=isHost?'':`<button class="btn gold" data-a="req" data-f="1">🙋 Pedir ${fmt(t.buyin)} fichas al anfitrión</button>`;
   return `<section class="mypanel">
-    ${cards}${helper?`<div class="helper">${esc(helper)}</div>`:''}
+    ${clock}${cards}${helper?`<div class="helper">${esc(helper)}</div>`:''}
     ${act}${extra}${adminPanel(t)}
     <div class="seatctl"><span class="muted">Fichas: <b>${fmt(s.stack)}</b>${s.pending?' (+'+fmt(s.pending)+')':''}</span>
-      ${!t.tour&&t.rebuy?`<button class="link" data-a="addToggle">${ui.addOpen?'Cerrar':'➕ Fichas'}</button>`:''}
+      ${!t.tour&&!isHost&&!myReq?`<button class="link" data-a="addToggle">${ui.addOpen?'Cerrar':'🙋 Pedir fichas'}</button>`:''}
       ${isAdmin(t)?`<button class="link" data-a="adminToggle">${ui.admin?'Cerrar':'⚙️ Admin'}</button>`:''}
       <button class="link" data-a="sitout">${s.sitOut?'Volver a jugar':'Ausentarme'}</button>
       <button class="link" data-a="leave">${s.leave?'Saliendo al terminar la mano…':'Levantarme'}</button></div>
@@ -1216,6 +1323,18 @@ function chatHtml(t){
     <div class="quick">${['👍','😂','🔥','😱','🍀','GG','Bien jugado','¡Suerte!'].map(q=>`<button data-a="quick" data-v="${q}">${q}</button>`).join('')}</div>
     <div class="row"><input id="chatIn" maxlength="140" placeholder="Escribe…" value="${esc(ui.chat)}"><button class="btn sm" data-a="chat">Enviar</button></div>`:''}</section>`;
 }
+
+/* ---------- Relojes en pantalla ---------- */
+setInterval(()=>{
+  const now=Date.now()-clockOff;
+  document.querySelectorAll('.tbar[data-dl],.ring[data-dl]').forEach(el=>{const rem=Math.max(0,+el.dataset.dl-now),f=Math.min(1,rem/(+el.dataset.tot||1));
+    if(el.classList.contains('ring'))el.style.setProperty('--f',f);else el.style.transform='scaleX('+f+')';
+    el.classList.toggle('low',rem<=10000);el.closest('.myclock')?.classList.toggle('low',rem<=10000)});
+  document.querySelectorAll('[data-dlnum]').forEach(el=>{const rem=Math.max(0,+el.dataset.dlnum-now);el.textContent=Math.ceil(rem/1000);el.classList.toggle('low',rem<=10000)});
+},200);
+let lastReqN=0;
+function reqAlert(){if(!isHost||!V)return;const n=(V.reqs||[]).length;if(n>lastReqN){try{navigator.vibrate&&navigator.vibrate([80,60,80])}catch(e){}
+  try{if(actx){const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=520;o.connect(g);g.connect(actx.destination);const q=actx.currentTime;g.gain.setValueAtTime(.0001,q);g.gain.exponentialRampToValueAtTime(.2,q+.02);g.gain.exponentialRampToValueAtTime(.0001,q+.25);o.start(q);o.stop(q+.27)}}catch(e){}}lastReqN=n}
 
 /* ---------- Aviso de turno ---------- */
 let lastTurnKey='', actx=null;
@@ -1260,6 +1379,13 @@ function clickAct(a,b){
     case 'treg':case 'tstart':case 'tcancel':case 'tpause':case 'tclear':return send({k:a,trid:+b.dataset.tr});
     case 'trebuy':return send({k:'trebuy',tid:t.id});
     case 'addToggle':ui.addOpen=!ui.addOpen;return render();
+    case 'req':ui.addOpen=false;return send({k:'req',tid:t.id,f:+(b.dataset.f||1)});
+    case 'reqcancel':return send({k:'reqcancel',rid:+b.dataset.r});
+    case 'reqsOpen':ui.reqs=true;return render();
+    case 'reqsClose':ui.reqs=false;return render();
+    case 'reqok':return send({k:'reqok',rid:+b.dataset.r,amt:b.dataset.amt?+b.dataset.amt:undefined});
+    case 'reqno':return send({k:'reqno',rid:+b.dataset.r});
+    case 'ext':b.disabled=true;return send({k:'ext',tid:t.id});
     case 'adminToggle':ui.admin=!ui.admin;return render();
     case 'addme':ui.addOpen=false;return send({k:'add',tid:t.id,amt:+b.dataset.amt});
     case 'addto':return send({k:'add',tid:t.id,to:b.dataset.p,amt:+b.dataset.amt});
@@ -1283,7 +1409,10 @@ function clickAct(a,b){
     case 'quick':return send({k:'chat',tid:t.id,txt:b.dataset.v});
   }
 }
+let animOn=true;try{animOn=localStorage.getItem('pk_anim')!=='0'}catch(e){}
+document.documentElement.classList.toggle('noanim',!animOn);
 document.addEventListener('change',e=>{
+  if(e.target.id==='animIn'){animOn=e.target.checked;try{localStorage.setItem('pk_anim',animOn?'1':'0')}catch(_){}document.documentElement.classList.toggle('noanim',!animOn);return}
   if(e.target.id==='g_variant'&&ui.tform){readTForm();const v=ui.tform.variant;ui.tform.limit=VAR[v].limit;ui.tform.seats=Math.min(+ui.tform.seats,VAR[v].max);return render()}
   if(e.target.id&&e.target.id.startsWith('g_')&&ui.tform){readTForm();return render()}
   if(e.target.id==='f_variant'&&ui.form){readForm();const v=ui.form.variant;ui.form.limit=VAR[v].limit;ui.form.max=Math.min(+ui.form.max,VAR[v].max);render()}
@@ -1328,7 +1457,9 @@ function rulesHtml(){
   <h3>Torneos</h3>
   <p>Todos pagan la misma entrada y empiezan con las mismas fichas. Las ciegas suben cada nivel (por tiempo). Quien se queda sin fichas queda eliminado (salvo en el periodo de recompras). Si hay varias mesas, la app mueve jugadores para equilibrarlas y las va juntando hasta la mesa final. Gana quien se queda con todas las fichas.</p>
   <h3>Fichas</h3>
-  <p>En mesas normales puedes recargar tus fichas con <b>➕ Fichas</b> si la mesa permite recompras. El anfitrión o quien creó la mesa puede dar fichas a cualquiera desde <b>⚙️ Admin</b>. Si estás jugando una mano, las fichas se suman al terminarla.</p>
+  <p>Sólo el anfitrión da fichas. Si te hacen falta, toca <b>🙋 Pedir fichas</b>: al anfitrión le llega el aviso y decide cuántas darte. También puede darlas directo desde <b>⚙️ Admin</b>. Si estás jugando una mano, las fichas se suman al terminarla. En torneos con recompras, la recompra también la aprueba el anfitrión.</p>
+  <h3>Tiempo</h3>
+  <p>Cuando hay tiempo por turno, ves los segundos que le quedan a quien está tirando. Cada jugador tiene <b>3 extensiones de +30 s</b> por mesa (⏱) para pensar una jugada difícil.</p>
   <h3>En esta app</h3>
   <ul><li>Un club puede tener hasta ${MAX_TABLES} mesas al mismo tiempo, y puedes sentarte en varias; arriba aparecen tus mesas y se marca ⏰ donde te toca.</li>
   <li>Si se acaba tu tiempo de turno: pasas si puedes, si no te retiras. Dos veces seguidas te marcan como ausente.</li>
