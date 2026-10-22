@@ -329,6 +329,42 @@ input.code{text-transform:uppercase;letter-spacing:.3em;text-align:center;font-s
 @media (prefers-reduced-motion:reduce){*,*::before,*::after,body::before,body::after{animation:none!important}}
 
 @media (max-width:360px){.seat{width:26%}.pinfo b,.stk{font-size:11px}}
+
+/* v5: cuenta, perfil, cobro */
+.av.emo{font-size:19px;line-height:1;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.av.sm.emo{font-size:14px}
+.av.xl{width:64px;height:64px;font-size:22px;border-width:3px}.av.xl.emo{font-size:36px}
+.up{color:#7ee2a0}.dn{color:#ff8a80}
+.profile{display:flex;gap:14px;align-items:center}
+.pf{display:flex;flex-direction:column;gap:4px;min-width:0}.pf b{font:800 19px var(--display);overflow:hidden;text-overflow:ellipsis}.pf small{color:var(--muted)}
+.pf .row{margin-top:6px}
+.panel.admin{border-color:rgba(227,181,76,.5);background:linear-gradient(180deg,rgba(227,181,76,.09),rgba(255,255,255,.03))}
+.link.center{display:block;margin:4px auto 0}
+.preview{display:flex;flex-direction:column;align-items:center;gap:8px;padding:4px 0 6px}.preview b{font:800 18px var(--display)}
+.avgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.avpick{aspect-ratio:1;border-radius:50%;border:2px solid transparent;font-size:24px;cursor:pointer;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%,hsl(var(--h) 55% 40%),hsl(var(--h) 45% 20%));font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;padding:0}
+.avpick.on{border-color:var(--gold);box-shadow:0 0 0 3px rgba(227,181,76,.3);transform:scale(1.06)}
+.colrow{display:flex;flex-wrap:wrap;gap:10px}
+.colpick{width:32px;height:32px;border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,.3);background:hsl(var(--h) 65% 50%);padding:0}
+.colpick.on{border-color:#fff;box-shadow:0 0 0 3px var(--gold)}
+.codebox{font:600 12px ui-monospace,Menlo,monospace;word-break:break-all;background:rgba(0,0,0,.35);border:1px dashed var(--line);border-radius:10px;padding:10px;user-select:all;-webkit-user-select:all}
+.hist{display:flex;flex-direction:column;gap:8px}
+.hrow{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.hrow>div{display:flex;flex-direction:column;gap:2px;min-width:0}.hrow small{color:var(--muted);font-size:12px}.hrow .net{font-size:17px;white-space:nowrap}
+.cashgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cashgrid>div{background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.cashgrid small{color:var(--muted);font-size:12px}.cashgrid b{font:800 20px var(--body);font-variant-numeric:tabular-nums}
+.cashgrid .up b{color:#7ee2a0}.cashgrid .dn b{color:#ff8a80}
+.cashbox{display:flex;flex-direction:column;gap:10px;background:rgba(0,0,0,.3);border:1px solid rgba(227,181,76,.45);border-radius:14px;padding:12px}
+.mynet{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted);padding:2px 2px 0}
+.mynet b{color:var(--ink)}.mynet>span:last-child{font-weight:800}
+.modal.center-m{align-items:center;padding:16px}
+.mbox.receipt{border-radius:20px;padding:22px 18px 18px;gap:12px;text-align:center;max-width:380px;animation:pop .35s ease-out}
+.rc-ic{font-size:46px;line-height:1}
+.rc-net{display:flex;flex-direction:column;gap:2px;padding:6px 0}.rc-net small{font-size:13px;color:var(--muted)}
+.rc-net b{font:900 40px var(--display);font-variant-numeric:tabular-nums}.rc-net.up b{color:#7ee2a0}.rc-net.dn b{color:#ff8a80}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
 </style>
 </head>
 <body>
@@ -337,7 +373,7 @@ input.code{text-transform:uppercase;letter-spacing:.3em;text-align:center;font-s
 <script>
 /* ================= MOTOR DE PÓKER ================= */
 const RANKS='23456789TJQKA', SUITS='shdc';
-const HOOK={before:null,after:null};
+const HOOK={before:null,after:null,left:null};
 const VAR={
   holdem:{name:"Texas Hold'em",short:"Hold'em",hole:2,board:true,max:10,limit:'nl',desc:'2 cartas tuyas + 5 comunitarias. La más jugada del mundo.'},
   omaha:{name:'Omaha',short:'Omaha',hole:4,board:true,omaha:true,max:10,limit:'pl',desc:'4 cartas tuyas; usas exactamente 2 de ellas y 3 de la mesa.'},
@@ -607,7 +643,7 @@ function endHandCleanup(t){
   t.seats.forEach((s,i)=>{
     if(!s)return;
     if(s.pending){s.stack+=s.pending;s.pending=0}
-    if(s.leave){const L=t.ledger[s.pid]||(t.ledger[s.pid]={buy:0,out:0});L.out+=s.stack;t.seats[i]=null;return}
+    if(s.leave){const L=t.ledger[s.pid]||(t.ledger[s.pid]={buy:0,out:0});L.out+=s.stack;if(HOOK.left)HOOK.left(t,s);t.seats[i]=null;return}
     Object.assign(s,{inHand:false,folded:false,allin:false,bet:0,total:0,cards:[],up:[],acted:false,last:'',shown:false,drew:null,win:0,best:null});
   });
   t.hand=null;
@@ -656,20 +692,39 @@ let V=null;            // lo que ve este celular
 let me=null, isHost=false, code=null, peer=null, conn=null, conns={}, connected=false, errMsg='', clockOff=0, retryT=null, leaving=false;
 let ui={screen:'lobby',tid:null,raise:null,drawSel:new Set(),rules:false,create:false,chat:'',chatOpen:false,tab:'mesas',addOpen:false,admin:false,tcreate:false};
 let houseMode=false, lastMsgAt=0, hiddenAt=0;
-let myName='';try{myName=localStorage.getItem('pk_name')||''}catch(e){}
+let myName='';
+const AVATARS=['🤠','😎','🦊','🐯','🦁','🐼','🐸','🐙','🦄','🐺','🦅','🐲','👽','🤖','💀','🎃','🧙‍♂️','🧛‍♀️','🥷','🕵️','👨‍🚀','🦸‍♀️','🧜‍♀️','👑','🎩','🃏','🐻','🐨','🦉','🦈'];
+const COLORS=[0,25,45,95,150,190,215,260,290,330];
+const ADMIN_HASH='99fb00fd058c87005959e6ab91aa4405740545416f59d5891bfc8c15de64878e';
+let acct=null, isAdminDev=false;
+const _st={};
 const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const pname=pid=>(C&&C.players[pid]&&C.players[pid].name)||(V&&V.players[pid]&&V.players[pid].name)||'Jugador';
 const isOnline=pid=>!!(C&&C.players[pid]&&C.players[pid].online);
 const newCode=()=>{let s='';const a=new Uint32Array(4);crypto.getRandomValues(a);for(const n of a)s+=ALPH[n%ALPH.length];return s};
 const shareUrl=c=>location.origin+location.pathname+'?club='+c;
 
+
+/* ---------- Cuenta del jugador (vive en su celular) ---------- */
+function loadAcct(){acct=store.get('pk_acct');if(acct&&!acct.hist)acct.hist=[];myName=acct?acct.name:'';isAdminDev=store.get('pk_admin')===ADMIN_HASH}
+function saveAcct(){store.set('pk_acct',acct);myName=acct.name}
+const rid=()=>{const a=new Uint32Array(4);crypto.getRandomValues(a);return [...a].map(x=>x.toString(36)).join('')};
+async function sha(txt){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(txt));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+const acctCode=()=>btoa(unescape(encodeURIComponent(JSON.stringify({u:acct.uid,k:acct.key,n:acct.name,a:acct.av,c:acct.col})))).replace(/=+$/,'');
+function avH(p,cls=''){const ok=p&&p.av!=null&&AVATARS[p.av];return `<span class="av ${cls}${ok?' emo':''}" style="--h:${p&&p.col!=null?p.col:200}">${ok?AVATARS[p.av]:esc(initials(p&&p.name))}</span>`}
+const $m=n=>'$'+fmt(n);
+const sign=n=>(n>0?'+':n<0?'−':'')+'$'+fmt(Math.abs(n));
+function saveReceipt(r){if(!acct)return;const key=r.at+'|'+r.table;if(acct.hist.some(x=>x.at+'|'+x.table===key))return false;acct.hist.unshift(r);acct.hist=acct.hist.slice(0,200);saveAcct();return true}
+loadAcct();
+
 /* ---------- Anfitrión ---------- */
-function newClub(){return {v:0,code,pn:0,tn:0,trn:0,players:{p0:{name:houseMode?'Mesa':(myName||'Anfitrión'),online:true,tok:'',house:houseMode}},tables:[],tours:[]}}
+function newClub(){return {v:0,code,pn:0,tn:0,trn:0,players:{p0:{name:houseMode?'Mesa':(myName||'Anfitrión'),online:true,tok:'',house:houseMode,uid:acct&&acct.uid,av:houseMode?null:acct&&acct.av,col:acct&&acct.col}},tables:[],tours:[],reqs:[]}}
 function hostClub(resume){
+  if(!isAdminDev){errMsg='Sólo el administrador puede abrir un club.';return renderHome()}
   if(typeof Peer==='undefined'){errMsg='No se pudo cargar la conexión. Revisa tu internet.';return renderHome()}
   isHost=true;me='p0';conns={};
   if(resume){C=resume.C;code=C.code;C.tours=C.tours||[];C.trn=C.trn||0;Object.values(C.players).forEach(p=>p.online=false);C.players.p0.online=true;
-    if(!C.players.p0.house)C.players.p0.name=myName||C.players.p0.name;
+    if(!C.players.p0.house&&acct){C.players.p0.name=acct.name;C.players.p0.av=acct.av;C.players.p0.col=acct.col;C.players.p0.uid=acct.uid}
     const away=Date.now()-(resume.at||Date.now());shiftClocks(away)}
   else{code=newCode();C=newClub()}
   try{history.replaceState(null,'',location.pathname+'?club='+code)}catch(_){}
@@ -705,14 +760,18 @@ function shiftClocks(ms){
 function hostMsg(c,m){
   if(!m||typeof m!=='object')return;
   if(m.t==='hi'){
-    let id=m.id&&C.players[m.id]&&C.players[m.id].tok&&C.players[m.id].tok===m.tok?m.id:null;
+    let id=null;
+    if(m.uid){const e=Object.entries(C.players).find(([,P])=>P.uid===m.uid);if(e&&e[1].key===m.key&&e[0]!=='p0')id=e[0]}
+    if(!id&&m.id&&C.players[m.id]&&C.players[m.id].tok&&C.players[m.id].tok===m.tok&&!C.players[m.id].uid)id=m.id;
     if(!id){
       if(Object.keys(C.players).length>=MAX_CLUB){try{c.send({t:'full'})}catch(_){}return setTimeout(()=>c.close(),300)}
-      id='p'+(++C.pn);C.players[id]={name:'',tok:Math.random().toString(36).slice(2)+Date.now().toString(36)};
+      id='p'+(++C.pn);C.players[id]={name:'',tok:Math.random().toString(36).slice(2)+Date.now().toString(36),uid:m.uid||null,key:m.key||null};
     }
     if(conns[id]&&conns[id]!==c){try{conns[id].close()}catch(_){}}
     c.pid=id;conns[id]=c;const P=C.players[id];P.online=true;P.name=clean(m.name)||P.name||'Jugador '+id.slice(1);
+    if(m.av!=null&&AVATARS[+m.av])P.av=+m.av;if(m.col!=null&&COLORS.includes(+m.col))P.col=+m.col;
     try{c.send({t:'hello',id,tok:P.tok})}catch(_){}
+    (P.receipts||[]).forEach(r=>{try{c.send({t:'receipt',r})}catch(_){}});P.receipts=[];
     return commit();
   }
   if(m.t==='ping'){try{c.send({t:'pong'})}catch(_){}return}
@@ -728,7 +787,7 @@ function commit(){
 }
 function viewFor(pid){
   const S=JSON.parse(JSON.stringify(C));
-  Object.values(S.players).forEach(p=>delete p.tok);
+  Object.values(S.players).forEach(p=>{delete p.tok;delete p.key;delete p.uid;delete p.receipts});
   S.tables.forEach(t=>{if(t.hand){delete t.hand.deck;delete t.hand.muck}
     t.seats.forEach(s=>{if(s&&s.pid!==pid&&!s.shown)s.cards=s.cards.map((c,k)=>s.up[k]?c:null)})});
   S.now=Date.now();S.you=pid;return S;
@@ -750,6 +809,7 @@ function handle(pid,a){
   const t=a.tid!=null?C.tables.find(x=>x.id===a.tid):null;
   switch(a.k){
     case 'name':P.name=clean(a.name)||P.name;break;
+    case 'profile':P.name=clean(a.name)||P.name;if(a.av!=null&&AVATARS[+a.av])P.av=+a.av;if(a.col!=null&&COLORS.includes(+a.col))P.col=+a.col;break;
     case 'mk':{
       if(C.tables.length>=MAX_TABLES)return;
       const v=VAR[a.variant]?a.variant:'holdem', lim=LIMITS[a.limit]?a.limit:VAR[v].limit;
@@ -762,12 +822,12 @@ function handle(pid,a){
       break;}
     case 'close':if(t&&(t.by===pid||pid==='p0')&&t.seats.every(s=>!s))C.tables=C.tables.filter(x=>x!==t);break;
     case 'sit':{if(!t||t.tour||P.house||seatOf(t,pid)>=0)return;const i=a.s|0;if(i<0||i>=t.seats.length||t.seats[i])return;
-      t.seats[i]=seatBlank(pid,t.buyin);const L=t.ledger[pid]||(t.ledger[pid]={buy:0,out:0});L.buy+=t.buyin;break;}
+      t.seats[i]=seatBlank(pid,t.buyin);t.seats[i].inv=t.buyin;const L=t.ledger[pid]||(t.ledger[pid]={buy:0,out:0});L.buy+=t.buyin;break;}
     case 'leave':{if(!t)return;const i=seatOf(t,pid);if(i<0)return;const s=t.seats[i];C.reqs=(C.reqs||[]).filter(r=>!(r.pid===pid&&r.tid===t.id));
       if(t.tour){s.sitOut=true;break}
       if(t.hand&&inH(s)&&t.hand.phase!=='showdown'){s.leave=true;foldOut(t,i)}
       else if(t.hand&&t.hand.phase==='showdown'&&s.inHand){s.leave=true}
-      else{t.ledger[pid].out+=s.stack;t.seats[i]=null}
+      else{t.ledger[pid].out+=s.stack;cashOut(t,s);t.seats[i]=null}
       break;}
     case 'sitout':{if(!t)return;const s=t.seats[seatOf(t,pid)];if(!s)return;s.sitOut=!s.sitOut;s.timeouts=0;break;}
     case 'add':{
@@ -902,9 +962,18 @@ function tourBalance(T,t){
 }
 
 
+function cashOut(t,s){
+  if(t.tour)return;
+  const out=s.stack+(s.pending||0), r={club:C.code,table:t.name,buy:s.inv||0,out,net:out-(s.inv||0),at:Date.now()};
+  pushLog(t,'💰 '+pname(s.pid)+' se levanta con '+$m(out)+' ('+sign(r.net)+')');
+  if(s.pid==='p0'){if(saveReceipt(r))ui.receipt=r;return}
+  const c=conns[s.pid];if(c&&c.open){try{c.send({t:'receipt',r})}catch(_){}}
+  else{const P=C.players[s.pid];if(P){P.receipts=P.receipts||[];P.receipts.push(r)}}
+}
+HOOK.left=(t,s)=>cashOut(t,s);
 function giveChips(t,s,amt){
   if(t.hand&&inH(s)&&t.hand.phase!=='showdown')s.pending=(s.pending||0)+amt;else s.stack+=amt;
-  s.sitOut=false;s.timeouts=0;const L=t.ledger[s.pid]||(t.ledger[s.pid]={buy:0,out:0});L.buy+=amt;
+  s.inv=(s.inv||0)+amt;s.sitOut=false;s.timeouts=0;const L=t.ledger[s.pid]||(t.ledger[s.pid]={buy:0,out:0});L.buy+=amt;
   pushLog(t,'✅ El anfitrión le dio '+fmt(amt)+' fichas a '+pname(s.pid)+(s.pending?' (al terminar la mano)':''));
 }
 function fillFromWait(t){
@@ -913,7 +982,7 @@ function fillFromWait(t){
   while(t.wait.length&&t.seats.some(x=>!x)){
     const idx=t.wait.findIndex(pid=>isOnline(pid)||pid==='p0');if(idx<0)break;
     const pid=t.wait.splice(idx,1)[0], free=t.seats.map((x,q)=>x?-1:q).filter(q=>q>=0), q=free[Math.floor(Math.random()*free.length)];
-    t.seats[q]=seatBlank(pid,t.buyin);const L=t.ledger[pid]||(t.ledger[pid]={buy:0,out:0});L.buy+=t.buyin;
+    t.seats[q]=seatBlank(pid,t.buyin);t.seats[q].inv=t.buyin;const L=t.ledger[pid]||(t.ledger[pid]={buy:0,out:0});L.buy+=t.buyin;
     pushLog(t,'🪑 '+pname(pid)+' entra desde la lista de espera');ch=true;
   }
   return ch;
@@ -940,13 +1009,14 @@ function joinClub(raw){
   peer=new Peer();
   peer.on('open',()=>{
     const cn=peer.connect(PREFIX+c,{reliable:true});conn=cn;
-    cn.on('open',()=>{connected=true;lastMsgAt=Date.now();const saved=store.get('pk_me_'+c)||{};try{cn.send({t:'hi',name:myName,id:saved.id,tok:saved.tok})}catch(_){}
+    cn.on('open',()=>{connected=true;lastMsgAt=Date.now();const saved=store.get('pk_me_'+c)||{};try{cn.send({t:'hi',name:myName,id:saved.id,tok:saved.tok,uid:acct&&acct.uid,key:acct&&acct.key,av:acct&&acct.av,col:acct&&acct.col})}catch(_){}
       try{history.replaceState(null,'',location.pathname+'?club='+c)}catch(_){}});
     cn.on('data',m=>{
       lastMsgAt=Date.now();
       if(!m||typeof m!=='object'||m.t==='pong')return;
       if(m.t==='full'){errMsg='El club está lleno.';return resetAll()}
       if(m.t==='hello'){me=m.id;store.set('pk_me_'+c,{id:m.id,tok:m.tok});return}
+      if(m.t==='receipt'&&m.r){if(saveReceipt(m.r)){ui.receipt=m.r;if(V)render()}return}
       if(m.t==='state'&&m.S){V=m.S;clockOff=Date.now()-V.now;me=V.you;render()}
     });
     cn.on('close',()=>{if(conn!==cn)return;connected=false;render();if(!leaving)retry()});
@@ -988,24 +1058,57 @@ function resetAll(){
 /* ---------- Pantalla inicial ---------- */
 function renderHome(){
   document.documentElement.dataset.scr='home';delete document.documentElement.dataset.amb;
-  const saved=store.get('pk_host'), canResume=saved&&saved.C&&Date.now()-saved.at<24*3600e3;
+  if(!acct)return renderAccount();
+  const saved=store.get('pk_host'), canResume=isAdminDev&&saved&&saved.C&&Date.now()-saved.at<24*3600e3;
+  const tot=acct.hist.reduce((x,r)=>x+r.net,0);
   view.innerHTML=`<div class="home">
     <div class="hero"><div class="suits"><span>♠</span><span class="r">♥</span><span>♣</span><span class="r">♦</span></div>
-      <h1>Club de Póker</h1><p>Mesas de hasta 9 jugadores, varias mesas al mismo tiempo, cada quien desde su celular. Se juega con fichas, sin dinero real.</p></div>
-    <section class="panel"><label class="fld"><span>Tu nombre en la mesa</span><input id="nameIn" maxlength="14" placeholder="¿Cómo te llamas?" value="${esc(myName)}" autocomplete="nickname"></label></section>
-    <section class="panel"><h2>Abrir un club</h2><p class="muted">El dispositivo que abre el club lleva las mesas. Si cambias de app, todo se pausa y sigue igual cuando regresas.</p>
-      <label class="chk"><input type="checkbox" id="houseIn"> Este dispositivo sólo lleva las mesas y no juega (ideal: una compu o tablet que se quede prendida, así nunca se pausa)</label>
-      <button class="btn gold" data-a="host">Crear club</button>
-      ${canResume?`<button class="btn ghost" data-a="resume">↺ Reabrir mi club ${esc(saved.C.code)}</button>`:''}</section>
-    <section class="panel"><h2>Entrar a un club</h2>
-      <div class="row"><input id="codeIn" class="code" maxlength="4" placeholder="ABCD" autocapitalize="characters" autocomplete="off"><button class="btn" data-a="join">Entrar</button></div>
+      <h1>Club de Póker</h1><p>Mesas de hasta 10 jugadores y torneos, cada quien desde su celular. 1 ficha = $1 MXN.</p></div>
+    <section class="panel profile">${avH(acct,'xl')}<div class="pf"><b>${esc(acct.name)}</b><small>${acct.hist.length} ${acct.hist.length===1?'sesión':'sesiones'} · <span class="${tot>0?'up':tot<0?'dn':''}">${sign(tot)}</span> en total</small>
+      <div class="row"><button class="btn sm ghost" data-a="profile">✏️ Perfil</button><button class="btn sm ghost" data-a="history">📒 Historial</button></div></div></section>
+    <section class="panel"><h2>Entrar a un club</h2><p class="muted small">Pídele el enlace o el código de 4 letras al administrador.</p>
+      <div class="row"><input id="codeIn" class="code" maxlength="4" placeholder="ABCD" autocapitalize="characters" autocomplete="off"><button class="btn gold" data-a="join">Entrar</button></div>
       ${errMsg?`<p class="err">${esc(errMsg)}</p>`:''}</section>
+    ${isAdminDev?`<section class="panel admin"><h2>🔑 Abrir un club</h2><p class="muted small">Sólo tú puedes abrir clubes. Este dispositivo lleva las mesas; si cambias de app, se pausa y sigue al regresar.</p>
+      <label class="chk"><input type="checkbox" id="houseIn"> Este dispositivo sólo lleva las mesas y no juega (una compu o tablet que se quede prendida)</label>
+      <button class="btn gold" data-a="host">Crear club</button>
+      ${canResume?`<button class="btn ghost" data-a="resume">↺ Reabrir mi club ${esc(saved.C.code)}</button>`:''}
+      <button class="link" data-a="adminOff">Quitar el modo administrador de este dispositivo</button></section>`
+    :ui.adminAsk?`<section class="panel"><h2>🔑 Administrador</h2><div class="row"><input id="admIn" placeholder="Clave" autocomplete="off" autocapitalize="characters"><button class="btn" data-a="adminTry">Entrar</button></div>${ui.adminErr?'<p class="err">Clave incorrecta.</p>':''}</section>`:''}
     <button class="btn ghost" data-a="rules">📖 Reglas del póker</button>
-  </div>${ui.rules?rulesHtml():''}`;
-  $('codeIn').addEventListener('keydown',e=>{if(e.key==='Enter')clickAct('join')});
+    ${isAdminDev||ui.adminAsk?'':'<button class="link center" data-a="adminAsk">🔑 Soy el administrador</button>'}
+  </div>${ui.rules?rulesHtml():''}${ui.receipt?receiptHtml():''}`;
+  const ci=$('codeIn');if(ci){ci.addEventListener('keydown',e=>{if(e.key==='Enter')clickAct('join')});const q=new URLSearchParams(location.search).get('club');if(q&&!ci.value)ci.value=q.toUpperCase()}
+}
+/* ---------- Cuenta: crear, editar, historial ---------- */
+function renderAccount(){
+  document.documentElement.dataset.scr='home';delete document.documentElement.dataset.amb;
+  const mode=!acct?'new':ui.acct||'edit';
+  if(mode==='hist'){
+    const tot=acct.hist.reduce((x,r)=>x+r.net,0);
+    view.innerHTML=`<div class="home"><header class="lhead"><button class="btn sm ghost" data-a="acctBack">← Volver</button><b class="brand">📒 Historial</b><span></span></header>
+      <section class="panel"><div class="cashgrid"><div><small>Sesiones</small><b>${acct.hist.length}</b></div><div class="${tot>=0?'up':'dn'}"><small>Resultado total</small><b>${sign(tot)}</b></div></div></section>
+      <div class="hist">${acct.hist.map(r=>`<div class="hrow"><div><b>${esc(r.table)}</b><small>${new Date(r.at).toLocaleString('es-MX',{dateStyle:'medium',timeStyle:'short'})} · club ${esc(r.club)}</small><small>Entró ${$m(r.buy)} · salió ${$m(r.out)}</small></div><span class="net ${r.net>0?'up':r.net<0?'dn':''}">${sign(r.net)}</span></div>`).join('')||'<p class="muted center">Aún no hay sesiones. Cuando te levantes de una mesa con “💰 Levantarme y cobrar”, aquí queda el registro.</p>'}</div></div>`;
+    return;
+  }
+  const d=ui.draft||(ui.draft=acct?{name:acct.name,av:acct.av,col:acct.col}:{name:'',av:Math.floor(Math.random()*AVATARS.length),col:COLORS[Math.floor(Math.random()*COLORS.length)]});
+  view.innerHTML=`<div class="home">
+    ${mode==='new'?`<div class="hero"><div class="suits"><span>♠</span><span class="r">♥</span><span>♣</span><span class="r">♦</span></div><h1>Club de Póker</h1><p>Crea tu cuenta. Se queda guardada en este celular y te reconocen en cualquier club.</p></div>`
+      :`<header class="lhead"><button class="btn sm ghost" data-a="acctBack">← Volver</button><b class="brand">👤 Mi perfil</b><span></span></header>`}
+    <section class="panel"><div class="preview">${avH(d,'xl')}<b>${esc(d.name)||'Tu nombre'}</b></div>
+      <label class="fld"><span>Nombre</span><input id="acName" maxlength="14" placeholder="¿Cómo te llamas?" value="${esc(d.name)}" autocomplete="nickname"></label>
+      <div class="lbl">Elige tu personaje</div><div class="avgrid">${AVATARS.map((e,i)=>`<button class="avpick${d.av===i?' on':''}" data-a="pickAv" data-i="${i}" style="--h:${d.col}">${e}</button>`).join('')}</div>
+      <div class="lbl">Color</div><div class="colrow">${COLORS.map(c=>`<button class="colpick${d.col===c?' on':''}" data-a="pickCol" data-c="${c}" style="--h:${c}" aria-label="Color"></button>`).join('')}</div>
+      <p class="err" id="acErr" hidden></p>
+      <button class="btn gold" data-a="acctSave">${mode==='new'?'Crear mi cuenta':'Guardar cambios'}</button></section>
+    ${mode==='new'?`<section class="panel"><h2>¿Ya tenías cuenta?</h2><p class="muted small">Pega el código de tu cuenta para recuperarla en este celular.</p>
+      <div class="row"><input id="recIn" placeholder="Código de tu cuenta" autocomplete="off"><button class="btn sm" data-a="acctRecover">Recuperar</button></div>${ui.recErr?'<p class="err">Ese código no es válido.</p>':''}</section>`
+      :`<section class="panel"><h2>Código de tu cuenta</h2><p class="muted small">Guárdalo (por ejemplo en tus notas). Si cambias de celular o borras los datos del navegador, con este código recuperas tu cuenta y tu historial de clubes.</p>
+      <div class="codebox" id="acCode">${esc(acctCode())}</div><button class="btn sm ghost" data-a="copyCode">Copiar código</button></section>`}
+  </div>`;
+  const ni=$('acName');if(ni)ni.addEventListener('input',()=>{ui.draft.name=ni.value;const pv=view.querySelector('.preview b');if(pv)pv.textContent=ni.value||'Tu nombre'});
 }
 function renderMsg(t){view.innerHTML=`<div class="home"><section class="panel"><p class="muted center">${esc(t)}</p><button class="btn ghost" data-a="quit">Cancelar</button></section></div>`}
-function saveName(){const ni=$('nameIn');if(ni){myName=clean(ni.value);try{localStorage.setItem('pk_name',myName)}catch(_){}}}
 
 /* ---------- Render principal ---------- */
 let holdRender=false, pendingRender=false;
@@ -1036,7 +1139,7 @@ function renderLobby(){
     const st=t.hand?`Mano #${t.hand.n} en juego`:seated>=2?'Por empezar…':'Esperando jugadores';
     return `<article class="tcard${mine?' mine':''}${myTurnAt(t)?' turn':''}" data-a="open" data-t="${t.id}">
       <div class="tc-top"><b>${esc(t.name)}</b><span class="vbadge v-${t.variant}">${VAR[t.variant].short}</span></div>
-      <div class="tc-mid">${LIMITS[t.limit]} · ciegas ${fmt(t.sb)}/${fmt(t.bb)}${t.ante?' · ante '+fmt(t.ante):''} · entrada ${fmt(t.buyin)}</div>
+      <div class="tc-mid">${LIMITS[t.limit]} · ciegas ${$m(t.sb)}/${$m(t.bb)}${t.ante?' · ante '+$m(t.ante):''} · entrada ${$m(t.buyin)}</div>
       <div class="tc-bot"><span class="dots">${t.seats.map(s=>`<i class="${s?'f':''}"></i>`).join('')}</span><span>${seated}/${t.seats.length}</span><span class="muted">${st}</span><span title="${esc(AMBS[okAmb(t.amb)][0])}">${AMBS[okAmb(t.amb)][1]}</span></div>
       ${(t.wait||[]).length?`<div class="waitl">⏳ ${(t.wait||[]).length} en lista de espera</div>`:''}
       ${myTurnAt(t)?'<div class="tc-turn">¡Te toca!</div>':''}
@@ -1053,10 +1156,12 @@ function renderLobby(){
     :ui.tab==='torneos'?`
       <div class="tlist">${(V.tours||[]).slice().reverse().map(tourCard).join('')||'<p class="muted center empty">No hay torneos. Crea uno: todos empiezan con las mismas fichas, las ciegas suben cada cierto tiempo y gana quien se queda con todo.</p>'}</div>
       ${ui.tcreate?tourForm():'<button class="btn gold" data-a="tcreate">🏆 Crear torneo</button>'}`
-    :`<section class="panel"><div class="lbl">Tabla de ganancias (fichas)</div>
-      <ol class="board-list">${players.map(([pid,p])=>{const n=myNet(pid);return `<li><span class="av sm" style="--h:${hue(pid)}">${esc(initials(p.name))}</span><b>${esc(p.name)}${pid===me?' (tú)':''}</b>${p.online?'':'<small class="muted"> · fuera</small>'}<span class="net ${n>0?'up':n<0?'dn':''}">${n>0?'+':''}${fmt(n)}</span></li>`}).join('')}</ol>
-      <label class="fld"><span>Tu nombre</span><div class="row"><input id="renameIn" maxlength="14" value="${esc(V.players[me]?V.players[me].name:myName)}"><button class="btn sm" data-a="rename">Guardar</button></div></label></section>`}
+    :`<section class="panel"><div class="lbl">Tabla de ganancias</div>
+      <ol class="board-list">${players.map(([pid,p])=>{const n=myNet(pid);return `<li>${avH(p,'sm')}<b>${esc(p.name)}${pid===me?' (tú)':''}</b>${p.online?'':'<small class="muted"> · fuera</small>'}<span class="net ${n>0?'up':n<0?'dn':''}">${sign(n)}</span></li>`}).join('')}</ol>
+      <p class="muted small">Ganancias en las mesas normales (1 ficha = $1 MXN). La app sólo lleva la cuenta; los pagos se arreglan entre ustedes.</p>
+      <button class="btn ghost" data-a="profile">👤 Editar mi perfil</button></section>`}
     ${reqFab()}${ui.reqs?reqsHtml():''}
+    ${ui.receipt?receiptHtml():''}
     <footer class="foot"><span class="cdot${connected?'':' off'}"></span>${connected?(isHost?'Eres el anfitrión: deja esta app abierta':'Conectado'):'Reconectando…'} · <button class="link" data-a="quit">Salir del club</button></footer>
   </div>${ui.rules?rulesHtml():''}`;
 }
@@ -1097,7 +1202,7 @@ function tourCard(T){
   if(T.status==='reg'){
     const inR=T.reg.includes(me);
     return `<article class="tcard tour">${head}
-      <div class="regl">${T.reg.map(pid=>`<span class="pchip"><i class="av sm" style="--h:${hue(pid)}">${esc(initials(V.players[pid]?.name))}</i>${esc(V.players[pid]?.name||'?')}</span>`).join('')||'<span class="muted">Nadie inscrito aún</span>'}</div>
+      <div class="regl">${T.reg.map(pid=>`<span class="pchip">${avH(V.players[pid],'sm')}${esc(V.players[pid]?.name||'?')}</span>`).join('')||'<span class="muted">Nadie inscrito aún</span>'}</div>
       <div class="row">${V.players[me]&&!V.players[me].house?`<button class="btn ${inR?'ghost':'gold'}" data-a="treg" data-tr="${T.id}">${inR?'Salirme':'Inscribirme'}</button>`:''}
         ${admin?`<button class="btn" data-a="tstart" data-tr="${T.id}" ${T.reg.length<2?'disabled':''}>Empezar (${T.reg.length})</button>`:''}</div>
       ${admin?`<button class="link" data-a="tcancel" data-tr="${T.id}">Cancelar torneo</button>`:''}
@@ -1151,9 +1256,10 @@ const SUITC={s:'♠',h:'♥',d:'♦',c:'♣'};
 const cardH=(c,cls='')=>c?`<span class="cd s-${c[1]} ${cls}${'hd'.includes(c[1])?' red':''}"><b>${c[0]==='T'?'10':c[0]}</b><i>${SUITC[c[1]]}</i><em>${SUITC[c[1]]}</em></span>`:`<span class="cd back ${cls}"></span>`;
 const hue=pid=>{let h=7;for(const ch of pid)h=(h*31+ch.charCodeAt(0))%360;return h};
 const initials=n=>String(n||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+let FM=n=>fmt(n);
 function renderTable(){
   document.documentElement.dataset.scr='table';
-  const t=V.tables.find(x=>x.id===ui.tid), h=t.hand, N=t.seats.length, myI=t.seats.findIndex(s=>s&&s.pid===me), mySeat=myI>=0?t.seats[myI]:null;
+  const t=V.tables.find(x=>x.id===ui.tid);FM=t.tour?fmt:$m;const h=t.hand, N=t.seats.length, myI=t.seats.findIndex(s=>s&&s.pid===me), mySeat=myI>=0?t.seats[myI]:null;
   const base=myI>=0?myI:0, Vv=VAR[t.variant];
   const ang=i=>(90+360*((i-base+N)%N)/N)*Math.PI/180;
   const now=Date.now()-clockOff;
@@ -1175,11 +1281,11 @@ function renderTable(){
     const tag=h&&h.sbI===i&&h.phase!=='showdown'&&h.street===0&&!Vv.stud?'<u>CP</u>':h&&h.bbI===i&&h.street===0&&h.phase!=='showdown'&&!Vv.stud?'<u>CG</u>':'';
     seatsH+=`<div class="seat${s.pid===me?' me':''}${active?' active':''}${s.folded||!s.inHand?' out':''}${isW?' win':''}${s.sitOut?' away':''}" style="left:${x}%;top:${y}%">
       ${cards?`<div class="scards${s.cards.length>3?' many':''}">${cards}</div>`:''}
-      <div class="pod"><span class="av" style="--h:${hue(s.pid)}">${esc(initials(P.name))}${P.online===false?'<s>⚡</s>':''}</span>
-        <div class="pinfo"><b>${esc(P.name)}</b><span class="stk">${s.allin&&!s.stack?'ALL-IN':fmt(s.stack)}</span></div>${timer}</div>
-      ${s.pending?`<div class="bub pend">+${fmt(s.pending)} al terminar</div>`:''}${s.last?`<div class="bub${isW?' w':''}">${esc(s.last)}</div>`:s.sitOut?'<div class="bub">Ausente</div>':s.stack===0&&!s.inHand?'<div class="bub">Sin fichas</div>':''}${tag}
+      <div class="pod">${avH(P).replace('</span>',(P.online===false?'<s>⚡</s>':'')+'</span>')}
+        <div class="pinfo"><b>${esc(P.name)}</b><span class="stk">${s.allin&&!s.stack?'ALL-IN':FM(s.stack)}</span></div>${timer}</div>
+      ${s.pending?`<div class="bub pend">+${FM(s.pending)} al terminar</div>`:''}${s.last?`<div class="bub${isW?' w':''}">${esc(s.last)}</div>`:s.sitOut?'<div class="bub">Ausente</div>':s.stack===0&&!s.inHand?'<div class="bub">Sin fichas</div>':''}${tag}
     </div>`;
-    if(s.bet>0){const bx=50+27*Math.cos(a),by=50+28*Math.sin(a);betsH+=`<div class="chips" style="left:${bx}%;top:${by}%"><i></i>${fmt(s.bet)}</div>`}
+    if(s.bet>0){const bx=50+27*Math.cos(a),by=50+28*Math.sin(a);betsH+=`<div class="chips" style="left:${bx}%;top:${by}%"><i></i>${FM(s.bet)}</div>`}
     if(h&&t.btn===i){const dx=50+33*Math.cos(a+.33),dy=50+34*Math.sin(a+.33);betsH+=`<div class="dealer" style="left:${dx}%;top:${dy}%">D</div>`}
   });
   const pot=h?h.pot+t.seats.reduce((a,s)=>a+(s?s.bet:0),0):0;
@@ -1188,27 +1294,28 @@ function renderTable(){
     const board=Vv.board?`<div class="bcards">${Array.from({length:5},(_,k)=>h.board[k]?cardH(h.board[k],'md'):'<span class="cd slot md"></span>').join('')}</div>`:'';
     let res='';
     if(h.phase==='showdown'&&h.results){
-      res=`<div class="results">${h.results.filter(r=>!(r.single&&h.results.length>1)).map(r=>`<div><b>${r.w.map(i=>esc(V.players[t.seats[i]?.pid]?.name||'?')).join(' y ')}</b> gana ${fmt(r.amt)}${r.side?' (bote secundario)':''}${r.name?`<small>${esc(r.name)}</small>`:''}</div>`).join('')}</div>`;
+      res=`<div class="results">${h.results.filter(r=>!(r.single&&h.results.length>1)).map(r=>`<div><b>${r.w.map(i=>esc(V.players[t.seats[i]?.pid]?.name||'?')).join(' y ')}</b> gana ${FM(r.amt)}${r.side?' (bote secundario)':''}${r.name?`<small>${esc(r.name)}</small>`:''}</div>`).join('')}</div>`;
     }
     const phase=h.phase==='draw'?'Ronda de cambio':h.phase==='runout'?'Todos all-in':h.phase==='showdown'?'':Vv.stud?['','','','3ª calle','4ª calle','5ª calle','6ª calle','7ª calle'][h.street]:Vv.draw?(h.street?'Después del cambio':'Antes del cambio'):['Antes del flop','Flop','Turn','River'][h.street];
-    center=`<div class="tcenter"><div class="pot">${h.phase==='showdown'?'':`Bote <b>${fmt(pot)}</b>`}</div>${board}${res||`<div class="phase">Mano #${h.n} · ${phase}</div>`}</div>`;
+    center=`<div class="tcenter"><div class="pot">${h.phase==='showdown'?'':`Bote <b>${FM(pot)}</b>`}</div>${board}${res||`<div class="phase">Mano #${h.n} · ${phase}</div>`}</div>`;
   }else{
     const seated=t.seats.filter(s=>s&&s.stack>0&&!s.sitOut).length;
     center=`<div class="tcenter"><div class="waitmsg">${seated>=2?'La siguiente mano empieza en un momento…':'Esperando jugadores ('+seated+'/2)'}<small>${esc(tableTag(t))}</small></div></div>`;
   }
-  document.documentElement.dataset.amb=okAmb(t.amb);
-  view.innerHTML=`<div class="tablescr amb-${okAmb(t.amb)} deck-${okDeck(t.deck)}">
-    <header class="thead"><button class="btn sm ghost" data-a="lobby">← Mesas</button><div class="tname"><b>${esc(t.name)}</b><small>${esc(VAR[t.variant].name)} · ${LIMITS[t.limit]} · ${fmt(t.sb)}/${fmt(t.bb)}</small></div><button class="btn sm ghost" data-a="style" aria-label="Estilo de la mesa">🎨</button><button class="btn sm ghost" data-a="rules" aria-label="Reglas">📖</button></header>
+  const myLook=store.get('pk_look')||{}, AMB=okAmb(myLook.amb||t.amb), DK=okDeck(myLook.deck||t.deck);
+  document.documentElement.dataset.amb=AMB;
+  view.innerHTML=`<div class="tablescr amb-${AMB} deck-${DK}">
+    <header class="thead"><button class="btn sm ghost" data-a="lobby">← Mesas</button><div class="tname"><b>${esc(t.name)}</b><small>${esc(VAR[t.variant].name)} · ${LIMITS[t.limit]} · ${FM(t.sb)}/${FM(t.bb)}</small></div><button class="btn sm ghost" data-a="style" aria-label="Estilo de la mesa">🎨</button><button class="btn sm ghost" data-a="rules" aria-label="Reglas">📖</button></header>
     ${myTablesBar()}
     ${t.tour?tourBar(t):''}
     <div class="felt-wrap"><div class="rail"><div class="felt"><span class="logo">♠ ${esc(V.code)}</span></div></div>${center}${betsH}${seatsH}</div>
     ${myPanel(t,myI,mySeat)}
     ${chatHtml(t)}
     <div class="loglist">${t.log.slice(-4).reverse().map(l=>`<div>#${l.n} · ${esc(l.txt)}</div>`).join('')}</div>
-  </div>${ui.rules?rulesHtml():''}${ui.style?styleHtml(t):''}${ui.reqs?reqsHtml():''}${reqFab()}`;
+  </div>${ui.rules?rulesHtml():''}${ui.style?styleHtml(t):''}${ui.reqs?reqsHtml():''}${reqFab()}${ui.receipt?receiptHtml():''}`;
   const rz=$('rz');
   if(rz){
-    const upd=()=>{ui.raise=+rz.value;const l=$('rzv');if(l)l.textContent=fmt(rz.value)};
+    const upd=()=>{ui.raise=+rz.value;const l=$('rzv');if(l)l.textContent=FM(rz.value)};
     rz.addEventListener('input',upd);
     rz.addEventListener('pointerdown',()=>{holdRender=true});
     const rel=()=>{holdRender=false;if(pendingRender){pendingRender=false;setTimeout(render,0)}};
@@ -1225,22 +1332,30 @@ function tourBar(t){
 function reqsHtml(){
   const R=V.reqs||[];
   return `<div class="modal"><div class="mbox"><header><h2>🙋 Solicitudes de fichas</h2><button class="btn sm ghost" data-a="reqsClose">Cerrar</button></header>
-    <div class="rules">${R.length?R.map(r=>{const t=V.tables.find(x=>x.id===r.tid);const s=t&&t.seats.find(x=>x&&x.pid===r.pid);const unit=t?t.buyin:r.amt;
-      return `<div class="reqrow"><div><b>${esc(V.players[r.pid]?.name||'?')}</b><small>${esc(t?t.name:'')} · tiene ${fmt(s?s.stack:0)} · ${r.kind==='trebuy'?'recompra de torneo':'pide'} <b>${fmt(r.amt)}</b></small></div>
-        <div class="row">${r.kind==='trebuy'?`<button class="btn sm gold" data-a="reqok" data-r="${r.id}">Aprobar</button>`:[...new Set([r.amt,Math.round(unit/2),unit,unit*2])].sort((a,b)=>a-b).map(x=>`<button class="btn sm ${x===r.amt?'gold':'ghost'}" data-a="reqok" data-r="${r.id}" data-amt="${x}">+${fmt(x)}</button>`).join('')}
+    <div class="rules">${R.length?R.map(r=>{const t=V.tables.find(x=>x.id===r.tid);const F=t&&t.tour?fmt:$m;const s=t&&t.seats.find(x=>x&&x.pid===r.pid);const unit=t?t.buyin:r.amt;
+      return `<div class="reqrow"><div><b>${esc(V.players[r.pid]?.name||'?')}</b><small>${esc(t?t.name:'')} · tiene ${F(s?s.stack:0)} · ${r.kind==='trebuy'?'recompra de torneo':'pide'} <b>${F(r.amt)}</b></small></div>
+        <div class="row">${r.kind==='trebuy'?`<button class="btn sm gold" data-a="reqok" data-r="${r.id}">Aprobar</button>`:[...new Set([r.amt,Math.round(unit/2),unit,unit*2])].sort((a,b)=>a-b).map(x=>`<button class="btn sm ${x===r.amt?'gold':'ghost'}" data-a="reqok" data-r="${r.id}" data-amt="${x}">+${F(x)}</button>`).join('')}
         <button class="btn sm red" data-a="reqno" data-r="${r.id}">No</button></div></div>`}).join(''):'<p class="muted center">No hay solicitudes pendientes.</p>'}
     <p class="muted small">Sólo tú, como anfitrión, puedes dar fichas. También puedes dárselas a cualquiera desde ⚙️ Admin en cada mesa.</p></div></div></div>`;
 }
 function reqFab(){const n=(V.reqs||[]).length;return isHost&&n?`<button class="reqfab" data-a="reqsOpen">🙋 ${n} ${n===1?'solicitud':'solicitudes'}</button>`:''}
 function styleHtml(t){
-  const can=isHost||t.by===me||t.seats.some(s=>s&&s.pid===me);
-  const ex=['As','Kh','Qd','Jc'];
-  return `<div class="modal"><div class="mbox"><header><h2>🎨 Estilo de la mesa</h2><button class="btn sm ghost" data-a="closeStyle">Listo</button></header>
-    <div class="rules">${can?'<p class="muted">Lo que elijas lo ven todos en esta mesa.</p>':'<p class="muted">Sólo quienes están sentados en la mesa pueden cambiar el estilo.</p>'}
-    <label class="chk"><input type="checkbox" id="animIn"${animOn?' checked':''}> ✨ Fondos animados en este celular</label>
-    <h3>Ambiente</h3><div class="sgrid">${Object.entries(AMBS).map(([k,[n,ic]])=>`<button class="stile amb amb-${k}${okAmb(t.amb)===k?' on':''}" data-a="look" data-amb="${k}" ${can?'':'disabled'}><span class="mini"><i></i></span>${ic} ${n}</button>`).join('')}</div>
-    <h3>Cartas</h3><div class="sgrid">${Object.entries(DECKS).map(([k,n])=>`<button class="stile deck-${k}${okDeck(t.deck)===k?' on':''}" data-a="look" data-deck="${k}" ${can?'':'disabled'}><span class="minicards">${ex.map(c=>cardH(c)).join('')}${cardH(null)}</span>${n}</button>`).join('')}</div>
+  const L=store.get('pk_look')||{}, A=okAmb(L.amb||t.amb), D=okDeck(L.deck||t.deck), ex=['As','Kh','Qd','Jc'];
+  return `<div class="modal"><div class="mbox"><header><h2>🎨 Mi estilo</h2><button class="btn sm ghost" data-a="closeStyle">Listo</button></header>
+    <div class="rules"><p class="muted">Esto sólo cambia en tu celular; los demás ven la mesa con su propio estilo.</p>
+    <label class="chk"><input type="checkbox" id="animIn"${animOn?' checked':''}> ✨ Fondos animados</label>
+    ${L.amb||L.deck?'<button class="btn ghost sm" data-a="mylookReset">↺ Usar el estilo de cada mesa</button>':''}
+    <h3>Ambiente</h3><div class="sgrid">${Object.entries(AMBS).map(([k,[n,ic]])=>`<button class="stile amb amb-${k}${A===k?' on':''}" data-a="mylook" data-amb="${k}"><span class="mini"><i></i></span>${ic} ${n}</button>`).join('')}</div>
+    <h3>Cartas</h3><div class="sgrid">${Object.entries(DECKS).map(([k,n])=>`<button class="stile deck-${k}${D===k?' on':''}" data-a="mylook" data-deck="${k}"><span class="minicards">${ex.map(c=>cardH(c)).join('')}${cardH(null)}</span>${n}</button>`).join('')}</div>
     </div></div></div>`;
+}
+function receiptHtml(){
+  const r=ui.receipt;
+  return `<div class="modal center-m"><div class="mbox receipt"><div class="rc-ic">💰</div><h2>Te levantaste de ${esc(r.table)}</h2>
+    <div class="cashgrid"><div><small>Entraste con</small><b>${$m(r.buy)}</b></div><div><small>Te llevas</small><b>${$m(r.out)}</b></div></div>
+    <div class="rc-net ${r.net>0?'up':r.net<0?'dn':''}"><small>${r.net>0?'Ganaste':r.net<0?'Perdiste':'Quedaste igual'}</small><b>${sign(r.net)}</b></div>
+    <p class="muted small">1 ficha = $1 MXN · Club ${esc(r.club)} · ${new Date(r.at).toLocaleString('es-MX',{dateStyle:'medium',timeStyle:'short'})}<br>Quedó guardado en tu historial. Los pagos se arreglan entre ustedes.</p>
+    <button class="btn gold" data-a="receiptOk">Listo</button></div></div>`;
 }
 function isAdmin(t){return isHost}
 function adminPanel(t){
@@ -1249,8 +1364,8 @@ function adminPanel(t){
   if(!ui.admin)return t.seats.findIndex(s=>s&&s.pid===me)<0&&seated.length?'<button class="link" data-a="adminToggle">⚙️ Dar fichas a jugadores</button>':'';
   const unit=t.tour?((V.tours||[]).find(x=>x.id===t.tour)||{}).stack||t.buyin:t.buyin;
   return `<div class="addbox"><div class="lbl">⚙️ Dar fichas a jugadores${t.tour?' (torneo)':''}</div>
-    ${seated.map(({s})=>`<div class="arow"><span class="av sm" style="--h:${hue(s.pid)}">${esc(initials(V.players[s.pid]?.name))}</span><b>${esc(V.players[s.pid]?.name||'?')}</b><small>${fmt(s.stack)}${s.pending?' +'+fmt(s.pending):''}</small>
-      ${[.5,1].map(f=>`<button data-a="addto" data-p="${s.pid}" data-amt="${Math.round(unit*f)}">+${fmt(Math.round(unit*f))}</button>`).join('')}</div>`).join('')}
+    ${seated.map(({s})=>`<div class="arow">${avH(V.players[s.pid],'sm')}<b>${esc(V.players[s.pid]?.name||'?')}</b><small>${FM(s.stack)}${s.pending?' +'+FM(s.pending):''}</small>
+      ${[.5,1].map(f=>`<button data-a="addto" data-p="${s.pid}" data-amt="${Math.round(unit*f)}">+${FM(Math.round(unit*f))}</button>`).join('')}</div>`).join('')}
     <div class="row"><input id="addAmt" type="number" inputmode="numeric" min="1" placeholder="Otra cantidad"><select id="addWho">${seated.map(({s})=>`<option value="${s.pid}">${esc(V.players[s.pid]?.name||'?')}</option>`).join('')}</select><button class="btn sm" data-a="addcustom">Dar</button></div>
     <small class="muted">Si el jugador está en una mano, las fichas se suman al terminarla.</small></div>`;
 }
@@ -1258,7 +1373,7 @@ function myPanel(t,i,s){
   if(i<0){
     const free=t.seats.some(x=>!x);
     const house=V.players[me]&&V.players[me].house;
-    return `<section class="mypanel"><p class="muted center">${t.tour?'Estás mirando esta mesa del torneo.':house?'Modo mesa: este dispositivo muestra la mesa.':free?'Estás mirando. Toca “Sentarme” en un asiento libre para jugar con '+fmt(t.buyin)+' fichas.':'La mesa está llena; puedes mirar.'}</p>
+    return `<section class="mypanel"><p class="muted center">${t.tour?'Estás mirando esta mesa del torneo.':house?'Modo mesa: este dispositivo muestra la mesa.':free?'Estás mirando. Toca “Sentarme” en un asiento libre para jugar con '+FM(t.buyin)+' fichas.':'La mesa está llena; puedes mirar.'}</p>
       ${!t.tour&&!free&&!house?`<button class="btn ${(t.wait||[]).includes(me)?'ghost':'gold'}" data-a="wait">${(t.wait||[]).includes(me)?'Salir de la lista de espera (lugar '+((t.wait||[]).indexOf(me)+1)+')':'Anotarme en la lista de espera'}</button>`:''}
       ${(t.wait||[]).length?`<p class="waitl center">Lista de espera: ${(t.wait||[]).map(p=>esc(V.players[p]?.name||'?')).join(', ')}</p>`:''}
       ${adminPanel(t)}
@@ -1285,9 +1400,9 @@ function myPanel(t,i,s){
     act=`<div class="acts">
       <div class="abtns">
         ${L.canCheck?'':'<button class="btn red" data-a="act" data-v="fold">Retirarse</button>'}
-        ${L.canCheck?'<button class="btn" data-a="act" data-v="check">Pasar</button>':`<button class="btn" data-a="act" data-v="call">${toC>=s.stack?'All-in ':'Igualar '}${fmt(toC)}</button>`}
-        ${L.canRaise?(t.limit==='fl'||L.minTo===L.maxTo?`<button class="btn gold" data-a="act" data-v="raise" data-to="${L.minTo}">${L.minTo===L.allIn?'All-in ':(L.isBet?'Apostar ':'Subir a ')}${fmt(L.minTo)}</button>`
-          :`<button class="btn gold" data-a="act" data-v="raise" data-to="slider">${L.isBet?'Apostar':'Subir a'} <span id="rzv">${fmt(r)}</span></button>`):''}
+        ${L.canCheck?'<button class="btn" data-a="act" data-v="check">Pasar</button>':`<button class="btn" data-a="act" data-v="call">${toC>=s.stack?'All-in ':'Igualar '}${FM(toC)}</button>`}
+        ${L.canRaise?(t.limit==='fl'||L.minTo===L.maxTo?`<button class="btn gold" data-a="act" data-v="raise" data-to="${L.minTo}">${L.minTo===L.allIn?'All-in ':(L.isBet?'Apostar ':'Subir a ')}${FM(L.minTo)}</button>`
+          :`<button class="btn gold" data-a="act" data-v="raise" data-to="slider">${L.isBet?'Apostar':'Subir a'} <span id="rzv">${FM(r)}</span></button>`):''}
       </div>
       ${L.canRaise&&t.limit!=='fl'&&L.minTo<L.maxTo?`<div class="rz"><input type="range" id="rz" min="${L.minTo}" max="${L.maxTo}" step="${Math.max(1,Math.floor(t.bb/2))}" value="${r}">
         <div class="presets"><button data-a="preset" data-to="${L.minTo}">Mín</button><button data-a="preset" data-to="${pre(.5)}">½ bote</button><button data-a="preset" data-to="${pre(.75)}">¾ bote</button><button data-a="preset" data-to="${pre(1)}">Bote</button>${t.limit==='nl'?`<button data-a="preset" data-to="${L.maxTo}">Todo</button>`:''}</div></div>`:''}
@@ -1301,19 +1416,25 @@ function myPanel(t,i,s){
   const T=t.tour?(V.tours||[]).find(x=>x.id===t.tour):null;
   let extra='';
   const myReq=(V.reqs||[]).find(r=>r.pid===me&&r.tid===t.id);
-  if(myReq)extra=`<div class="reqbox">🙋 Pediste ${fmt(myReq.amt)} fichas · esperando al anfitrión… <button class="link" data-a="reqcancel" data-r="${myReq.id}">Cancelar</button></div>`;
-  else if(T){if(s.stack===0&&!inH(s))extra=T.level<T.rebuyLv?`<button class="btn gold" data-a="req">🙋 Pedir recompra de ${fmt(T.stack)} al anfitrión</button>`:'<p class="muted center">Te quedaste sin fichas.</p>'}
-  else if(ui.addOpen&&!isHost)extra=`<div class="addbox"><div class="lbl">¿Cuántas fichas le pides al anfitrión?</div><div class="presets">${[.5,1,2].map(f=>`<button data-a="req" data-f="${f}">${fmt(Math.round(t.buyin*f))}</button>`).join('')}</div>
+  if(myReq)extra=`<div class="reqbox">🙋 Pediste ${FM(myReq.amt)} fichas · esperando al anfitrión… <button class="link" data-a="reqcancel" data-r="${myReq.id}">Cancelar</button></div>`;
+  else if(T){if(s.stack===0&&!inH(s))extra=T.level<T.rebuyLv?`<button class="btn gold" data-a="req">🙋 Pedir recompra de ${FM(T.stack)} al anfitrión</button>`:'<p class="muted center">Te quedaste sin fichas.</p>'}
+  else if(ui.addOpen&&!isHost)extra=`<div class="addbox"><div class="lbl">¿Cuántas fichas le pides al anfitrión?</div><div class="presets">${[.5,1,2].map(f=>`<button data-a="req" data-f="${f}">${FM(Math.round(t.buyin*f))}</button>`).join('')}</div>
       <small class="muted">El anfitrión decide si te las da. Si estás en una mano, se suman al terminarla.</small></div>`;
-  else if(s.stack===0&&!inH(s))extra=isHost?'':`<button class="btn gold" data-a="req" data-f="1">🙋 Pedir ${fmt(t.buyin)} fichas al anfitrión</button>`;
+  else if(s.stack===0&&!inH(s))extra=isHost?'':`<button class="btn gold" data-a="req" data-f="1">🙋 Pedir ${FM(t.buyin)} fichas al anfitrión</button>`;
+  if(ui.cashAsk&&!t.tour&&!s.leave){const out=s.stack+(s.pending||0),net=out-(s.inv||0);
+    extra=`<div class="cashbox"><div class="lbl">💰 Levantarte y cobrar</div>
+      <div class="cashgrid"><div><small>Entraste con</small><b>${$m(s.inv||0)}</b></div><div><small>Te llevas</small><b>${$m(out)}</b></div><div class="${net>=0?'up':'dn'}"><small>${net>=0?'Ganas':'Pierdes'}</small><b>${sign(net)}</b></div></div>
+      ${inH(s)&&h&&h.phase!=='showdown'?'<small class="muted">Estás en una mano: te levantas con lo que tengas al terminarla.</small>':''}
+      <div class="row"><button class="btn ghost" data-a="cashNo">Seguir jugando</button><button class="btn gold" data-a="leave">Sí, levantarme</button></div></div>`}
   return `<section class="mypanel">
     ${clock}${cards}${helper?`<div class="helper">${esc(helper)}</div>`:''}
     ${act}${extra}${adminPanel(t)}
-    <div class="seatctl"><span class="muted">Fichas: <b>${fmt(s.stack)}</b>${s.pending?' (+'+fmt(s.pending)+')':''}</span>
+    ${!t.tour?`<div class="mynet"><span>Entraste con <b>${$m(s.inv||0)}</b></span><span>Tienes <b>${$m(s.stack+(s.pending||0))}</b></span><span class="${s.stack+(s.pending||0)-(s.inv||0)>=0?'up':'dn'}">${sign(s.stack+(s.pending||0)-(s.inv||0))}</span></div>`:''}
+    <div class="seatctl"><span class="muted">${t.tour?'Fichas: <b>'+FM(s.stack)+'</b>':''}${s.pending?' (+'+FM(s.pending)+')':''}</span>
       ${!t.tour&&!isHost&&!myReq?`<button class="link" data-a="addToggle">${ui.addOpen?'Cerrar':'🙋 Pedir fichas'}</button>`:''}
       ${isAdmin(t)?`<button class="link" data-a="adminToggle">${ui.admin?'Cerrar':'⚙️ Admin'}</button>`:''}
       <button class="link" data-a="sitout">${s.sitOut?'Volver a jugar':'Ausentarme'}</button>
-      <button class="link" data-a="leave">${s.leave?'Saliendo al terminar la mano…':'Levantarme'}</button></div>
+      ${t.tour?`<button class="link" data-a="leave">Levantarme</button>`:`<button class="link" data-a="cashAsk">${s.leave?'Cobrando al terminar la mano…':'💰 Levantarme y cobrar'}</button>`}</div>
   </section>`;
 }
 function chatHtml(t){
@@ -1354,9 +1475,24 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b
 function clickAct(a,b){
   const t=V&&ui.tid!=null?V.tables.find(x=>x.id===ui.tid):null;
   switch(a){
-    case 'host':saveName();houseMode=!!($('houseIn')||{}).checked;return hostClub(null);
-    case 'resume':{saveName();const s=store.get('pk_host');if(s)return hostClub(s);return}
-    case 'join':saveName();return joinClub(($('codeIn')||{}).value);
+    case 'host':if(!isAdminDev)return;houseMode=!!($('houseIn')||{}).checked;return hostClub(null);
+    case 'resume':{if(!isAdminDev)return;const s=store.get('pk_host');if(s)return hostClub(s);return}
+    case 'join':return joinClub(($('codeIn')||{}).value);
+    case 'adminAsk':ui.adminAsk=true;ui.adminErr=false;return renderHome();
+    case 'adminTry':{const v=String(($('admIn')||{}).value||'').toUpperCase().replace(/[^A-Z0-9]/g,'');sha(v).then(h=>{if(h===ADMIN_HASH){store.set('pk_admin',h);isAdminDev=true;ui.adminAsk=false}else ui.adminErr=true;renderHome()}).catch(()=>{ui.adminErr=true;renderHome()});return}
+    case 'adminOff':store.del('pk_admin');isAdminDev=false;return renderHome();
+    case 'pickAv':ui.draft.av=+b.dataset.i;return renderAccount();
+    case 'pickCol':ui.draft.col=+b.dataset.c;return renderAccount();
+    case 'acctSave':{const d=ui.draft,n=clean(($('acName')||{}).value);if(!n){const e=$('acErr');e.textContent='Escribe tu nombre.';e.hidden=false;return}
+      if(!acct)acct={uid:rid(),key:rid()+rid(),created:Date.now(),hist:[]};acct.name=n;acct.av=d.av;acct.col=d.col;saveAcct();ui.draft=null;ui.acct=null;
+      if(V&&connected)send({k:'profile',name:n,av:d.av,col:d.col});
+      if(isHost&&C&&C.players.p0&&!C.players.p0.house){C.players.p0.uid=acct.uid}
+      const q=new URLSearchParams(location.search).get('club');if(!V&&q&&/^[A-Za-z0-9]{4}$/.test(q)&&!isAdminDev)return joinClub(q);
+      return V?render():renderHome()}
+    case 'acctBack':ui.acct=null;ui.draft=null;return V?render():renderHome();
+    case 'acctRecover':{try{const raw=String(($('recIn')||{}).value||'').trim();const o=JSON.parse(decodeURIComponent(escape(atob(raw))));
+      if(!o.u||!o.k)throw 0;acct={uid:o.u,key:o.k,name:clean(o.n)||'Jugador',av:+o.a||0,col:+o.c||200,created:Date.now(),hist:[]};saveAcct();ui.recErr=false;ui.draft=null;return renderHome()}catch(e){ui.recErr=true;return renderAccount()}}
+    case 'copyCode':{const c=acctCode();navigator.clipboard.writeText(c).then(()=>{b.textContent='Copiado ✓'},()=>{const r=document.createRange();r.selectNodeContents($('acCode'));const sel=getSelection();sel.removeAllRanges();sel.addRange(r)});return}
     case 'quit':
       if(isHost&&V){if(b&&b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='¿Cerrar el club para todos? Toca otra vez';return}store.del('pk_host')}
       return resetAll();
@@ -1368,13 +1504,7 @@ function clickAct(a,b){
     case 'tcreate':ui.tcreate=!ui.tcreate;return render();
     case 'style':ui.style=true;return render();
     case 'closeStyle':ui.style=false;return render();
-    case 'look':return send({k:'look',tid:t.id,amb:b.dataset.amb,deck:b.dataset.deck});
     case 'wait':return send({k:'wait',tid:t.id});
-    case 'look':{if(!t)return;const admin=pid==='p0'||t.by===pid;if(!admin&&seatOf(t,pid)<0)return;
-      if(a.amb){t.amb=okAmb(a.amb);pushLog(t,'🎨 '+pname(pid)+' cambió el ambiente a '+AMBS[t.amb][0])}
-      if(a.deck){t.deck=okDeck(a.deck);pushLog(t,'🃏 '+pname(pid)+' cambió las cartas a '+DECKS[t.deck])}break;}
-    case 'wait':{if(!t||t.tour||P.house||seatOf(t,pid)>=0)return;t.wait=t.wait||[];
-      if(t.wait.includes(pid))t.wait=t.wait.filter(x=>x!==pid);else{if(t.seats.some(x=>!x))return;t.wait.push(pid)}break;}
     case 'tmk':{const d=readTForm();send({k:'tmk',...d});ui.tcreate=false;ui.tform=null;return}
     case 'treg':case 'tstart':case 'tcancel':case 'tpause':case 'tclear':return send({k:a,trid:+b.dataset.tr});
     case 'trebuy':return send({k:'trebuy',tid:t.id});
@@ -1392,15 +1522,22 @@ function clickAct(a,b){
     case 'addcustom':{const amt=Math.floor(+(($('addAmt')||{}).value||0)),to=($('addWho')||{}).value;if(amt>0&&to)send({k:'add',tid:t.id,to,amt});return}
     case 'create':ui.create=!ui.create;return render();
     case 'mk':{const d=readForm();send({k:'mk',...d,amb:d.amb,deck:d.deck,bb:+d.bb,buyBB:+d.buyBB,max:+d.max,timer:+d.timer,ante:+d.ante});ui.create=false;ui.form=null;return}
-    case 'open':ui.style=false;ui.screen='table';ui.tid=+b.dataset.t;ui.raise=null;ui.drawSel=new Set();ui.addOpen=false;ui.admin=false;window.scrollTo(0,0);return render();
+    case 'open':ui.style=false;ui.cashAsk=false;ui.screen='table';ui.tid=+b.dataset.t;ui.raise=null;ui.drawSel=new Set();ui.addOpen=false;ui.admin=false;window.scrollTo(0,0);return render();
     case 'lobby':ui.screen='lobby';return render();
     case 'rename':{const v=clean(($('renameIn')||{}).value);if(v){myName=v;try{localStorage.setItem('pk_name',v)}catch(_){}send({k:'name',name:v})}return}
     case 'sit':return send({k:'sit',tid:t.id,s:+b.dataset.s});
-    case 'leave':return send({k:'leave',tid:t.id});
+    case 'leave':ui.cashAsk=false;return send({k:'leave',tid:t.id});
+    case 'cashAsk':ui.cashAsk=true;return render();
+    case 'cashNo':ui.cashAsk=false;return render();
+    case 'receiptOk':ui.receipt=null;return V?render():renderHome();
+    case 'mylook':{const L=store.get('pk_look')||{};if(b.dataset.amb)L.amb=b.dataset.amb;if(b.dataset.deck)L.deck=b.dataset.deck;store.set('pk_look',L);return render()}
+    case 'mylookReset':store.del('pk_look');return render();
+    case 'profile':ui.acct='edit';return renderAccount();
+    case 'history':ui.acct='hist';return renderAccount();
     case 'sitout':return send({k:'sitout',tid:t.id});
     case 'rebuy':return send({k:'rebuy',tid:t.id});
     case 'closeT':ui.screen='lobby';return send({k:'close',tid:t.id});
-    case 'preset':{const rz=$('rz');ui.raise=+b.dataset.to;if(rz)rz.value=ui.raise;const l=$('rzv');if(l)l.textContent=fmt(ui.raise);return}
+    case 'preset':{const rz=$('rz');ui.raise=+b.dataset.to;if(rz)rz.value=ui.raise;const l=$('rzv');if(l)l.textContent=FM(ui.raise);return}
     case 'act':{let to=b.dataset.to==='slider'?(ui.raise??+(($('rz')||{}).value)):+b.dataset.to;ui.raise=null;b.disabled=true;return send({k:'act',tid:t.id,a:b.dataset.v,to})}
     case 'dsel':{const k=+b.dataset.k;ui.drawSel.has(k)?ui.drawSel.delete(k):ui.drawSel.add(k);return render()}
     case 'draw':{const idx=[...ui.drawSel];ui.drawSel=new Set();return send({k:'draw',tid:t.id,idx})}
@@ -1464,9 +1601,10 @@ function rulesHtml(){
   <ul><li>Un club puede tener hasta ${MAX_TABLES} mesas al mismo tiempo, y puedes sentarte en varias; arriba aparecen tus mesas y se marca ⏰ donde te toca.</li>
   <li>Si se acaba tu tiempo de turno: pasas si puedes, si no te retiras. Dos veces seguidas te marcan como ausente.</li>
   <li>Las cartas de los demás no llegan a tu celular hasta el enfrentamiento.</li>
-  <li>Con 🎨 cambias el ambiente de la mesa y el diseño de las cartas. Si una mesa está llena, anótate en la lista de espera y entras solo cuando se libere un lugar.</li>
+  <li>Si una mesa está llena, anótate en la lista de espera y entras solo cuando se libere un lugar.</li>
   <li>Si quien abrió el club cambia de app, el juego se pausa y sigue al regresar; todos se reconectan solos. Para que nunca se pause, abre el club en una compu o tablet en “modo mesa”.</li>
-  <li>Se juega con fichas, sin dinero real.</li></ul>
+  <li>En las mesas normales 1 ficha = $1 MXN. Con “💰 Levantarme y cobrar” te llevas tus fichas y ves cuánto ganaste; queda en tu historial. La app sólo lleva la cuenta: los pagos se arreglan entre ustedes.</li>
+  <li>El ambiente y las cartas que elijas en 🎨 sólo cambian en tu celular.</li></ul>
   </div></div></div>`;
 }
 
@@ -1474,8 +1612,9 @@ function rulesHtml(){
 (function boot(){
   const q=new URLSearchParams(location.search).get('club');
   const saved=store.get('pk_host');
-  if(q&&saved&&saved.C&&saved.C.code===q.toUpperCase()&&Date.now()-saved.at<12*3600e3)return hostClub(saved);
-  if(q&&/^[A-Za-z0-9]{4}$/.test(q)){if(myName)return joinClub(q);renderHome();const ci=$('codeIn');if(ci)ci.value=q.toUpperCase();return}
+  if(!acct)return renderAccount();
+  if(q&&isAdminDev&&saved&&saved.C&&saved.C.code===q.toUpperCase()&&Date.now()-saved.at<12*3600e3)return hostClub(saved);
+  if(q&&/^[A-Za-z0-9]{4}$/.test(q))return joinClub(q);
   renderHome();
 })();
 
