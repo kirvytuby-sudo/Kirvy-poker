@@ -90,19 +90,21 @@ input.code{text-transform:uppercase;letter-spacing:.3em;text-align:center;font-s
 .av s{position:absolute;right:-6px;top:-6px;font-size:11px;text-decoration:none}
 
 /* Cartas */
-.cd{--w:40px;width:var(--w);aspect-ratio:5/7;border-radius:calc(var(--w)*.12);background:linear-gradient(180deg,#fff,#f1ece0);color:#151515;position:relative;display:inline-block;flex:none;
-  box-shadow:0 1px 0 #bdb5a2,0 2px 4px rgba(0,0,0,.45);font-family:var(--display);line-height:1;overflow:hidden}
-.cd.red{color:#c8231b}
+.cd{--w:40px;--cbg:linear-gradient(180deg,#fff,#f1ece0);--cink:#151515;--cred:#c8231b;--cedge:#bdb5a2;--cfont:var(--display);
+  --back:repeating-linear-gradient(45deg,#7a1712 0 4px,#a3241c 4px 8px);--backb:#f3ecd9;
+  width:var(--w);aspect-ratio:5/7;border-radius:calc(var(--w)*.12);background:var(--cbg);color:var(--cink);position:relative;display:inline-block;flex:none;
+  box-shadow:0 1px 0 var(--cedge),0 2px 4px rgba(0,0,0,.45);font-family:var(--cfont);line-height:1;overflow:hidden}
+.cd.red{color:var(--cred)}
 .cd b{position:absolute;left:8%;top:6%;font-size:calc(var(--w)*.34);font-weight:900}
 .cd i{position:absolute;left:10%;top:38%;font-size:calc(var(--w)*.26);font-style:normal}
 .cd em{position:absolute;right:6%;bottom:2%;font-size:calc(var(--w)*.55);font-style:normal;opacity:.9}
-.cd.back{background:repeating-linear-gradient(45deg,#7a1712 0 4px,#a3241c 4px 8px);border:2px solid #f3ecd9}
+.cd.back{background:var(--back);border:2px solid var(--backb)}
 .cd.slot{background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.25)}
 .cd.xs{--w:22px}.cd.xs i{display:none}.cd.xs em{font-size:11px;right:3px;bottom:1px}.cd.xs b{font-size:9px;left:3px;top:2px}
 .cd.md{--w:min(10.5vw,42px)} .cd.lg{--w:min(18vw,68px)}
 .mycards.n5 .cd.lg{--w:min(15.5vw,58px)} .mycards.n7 .cd.lg{--w:min(11.5vw,46px)}
 .mycards{flex-wrap:nowrap}
-.cd.hid{background:repeating-linear-gradient(45deg,#7a1712 0 3px,#a3241c 3px 6px);border:1.5px solid #f3ecd9}
+.cd.hid{background:var(--back);border:1.5px solid var(--backb)}
 .cd.hid b,.cd.hid i,.cd.hid em{display:none}
 
 /* Mesa */
@@ -110,9 +112,9 @@ input.code{text-transform:uppercase;letter-spacing:.3em;text-align:center;font-s
 .thead{display:flex;align-items:center;gap:8px}.tname{flex:1;min-width:0;text-align:center}
 .tname b{display:block;font:700 17px var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tname small{color:var(--muted);font-size:12px}
 .felt-wrap{position:relative;width:100%;aspect-ratio:3/4;max-height:60vh;margin:4px auto 0;max-width:min(100%,calc(60vh*.75))}
-.rail{position:absolute;inset:9% 9%;border-radius:50%;background:linear-gradient(160deg,#4a2a1c,#1d0f0a);padding:3.2%;box-shadow:0 14px 30px rgba(0,0,0,.6),inset 0 2px 0 rgba(255,255,255,.15)}
-.felt{width:100%;height:100%;border-radius:50%;background:radial-gradient(ellipse at 50% 40%,#1a8a58 0,var(--felt) 45%,var(--felt2) 100%);
-  box-shadow:inset 0 0 0 3px rgba(227,181,76,.45),inset 0 0 40px rgba(0,0,0,.55);display:grid;place-items:center}
+.rail{position:absolute;inset:9% 9%;border-radius:50%;background:var(--railimg,none),linear-gradient(160deg,var(--r1),var(--r2));padding:3.2%;box-shadow:0 14px 30px rgba(0,0,0,.6),inset 0 2px 0 rgba(255,255,255,.15)}
+.felt{width:100%;height:100%;border-radius:50%;background:var(--feltimg,none),radial-gradient(ellipse at 50% 40%,var(--f1) 0,var(--f2) 45%,var(--f3) 100%);
+  box-shadow:inset 0 0 0 3px var(--ring),inset 0 0 40px rgba(0,0,0,.55);display:grid;place-items:center}
 .logo{font:900 13px var(--display);color:rgba(255,255,255,.12);letter-spacing:.2em;margin-top:52%}
 .tcenter{position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);width:56%;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;z-index:2}
 .pot{font:600 13px var(--body);color:#e8f5ec;background:rgba(0,0,0,.35);padding:3px 12px;border-radius:999px;min-height:22px}
@@ -198,6 +200,60 @@ input.code{text-transform:uppercase;letter-spacing:.3em;text-align:center;font-s
 .arow b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.arow small{color:var(--gold);font-weight:700}
 .arow button{background:rgba(227,181,76,.15);border:1px solid var(--gold2);color:var(--gold);border-radius:8px;padding:5px 8px;font:700 12px var(--body);cursor:pointer}
 .addbox select{min-height:36px;font-size:14px;padding:4px 8px}.addbox input{min-height:36px;font-size:14px}
+
+/* ================= AMBIENTES ================= */
+.tablescr,.amb{--f1:#1a8a58;--f2:#11643f;--f3:#0a4229;--r1:#4a2a1c;--r2:#1d0f0a;--ring:rgba(227,181,76,.45)}
+.amb-vegas{--f1:#d63a3a;--f2:#9c1b1b;--f3:#4a0808;--r1:#2b2b2b;--r2:#060606;--ring:rgba(255,215,64,.85)}
+.amb-vegas .rail{box-shadow:0 0 0 2px rgba(255,64,170,.8),0 0 26px rgba(255,64,170,.55),0 14px 30px rgba(0,0,0,.6)}
+:root[data-amb="vegas"] body{background:radial-gradient(circle at 15% 0,rgba(255,0,140,.38),transparent 42%),radial-gradient(circle at 85% 8%,rgba(0,200,255,.32),transparent 42%),radial-gradient(circle at 50% 100%,rgba(255,200,0,.18),transparent 50%),#14060f}
+.amb-monaco{--f1:#2f63c4;--f2:#1d4592;--f3:#0b1f4a;--r1:#1c1c1c;--r2:#000;--ring:rgba(233,201,120,.75)}
+:root[data-amb="monaco"] body{background:linear-gradient(115deg,rgba(255,255,255,.04) 0 20%,transparent 20% 40%,rgba(255,255,255,.03) 40% 55%,transparent 55%),radial-gradient(ellipse at 50% -10%,#24325c,transparent 60%),#070b18}
+.amb-cantina{--f1:#23a39e;--f2:#167a76;--f3:#0b4241;--r1:#a5703a;--r2:#5a3519;--ring:rgba(255,255,255,.55);
+  --feltimg:radial-gradient(circle at 50% 50%,rgba(255,255,255,.08) 0 14%,transparent 15%) 0 0/34px 34px}
+:root[data-amb="cantina"] body{background:conic-gradient(from 135deg at 50% 0,#e91e63 0 90deg,transparent 0) 0 0/40px 22px repeat-x,conic-gradient(from 135deg at 50% 0,#ffb300 0 90deg,transparent 0) 20px 0/40px 22px repeat-x,
+  repeating-linear-gradient(45deg,rgba(0,0,0,.06) 0 8px,transparent 8px 16px),#7a3b22}
+.amb-playa{--f1:#3fd6d0;--f2:#1ba3ad;--f3:#0d5f6e;--r1:#e2c07a;--r2:#a37b37;--ring:rgba(255,255,255,.6);
+  --railimg:repeating-linear-gradient(90deg,rgba(0,0,0,.12) 0 2px,transparent 2px 22px)}
+:root[data-amb="playa"] body{background:radial-gradient(circle at 50% 18%,#ffe08a 0,#ffb15a 10%,transparent 26%),linear-gradient(180deg,#ff8a5b 0,#f2577a 32%,#6a2c8a 70%,#22164a 100%)}
+.amb-espacio{--f1:#5b33b0;--f2:#311a72;--f3:#100a30;--r1:#dfe6ea;--r2:#5d717c;--ring:rgba(125,249,255,.6);
+  --feltimg:radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1.5px 1.5px at 70% 60%,#fff,transparent),radial-gradient(1px 1px at 40% 80%,#cdf,transparent),radial-gradient(1px 1px at 85% 25%,#fff,transparent)}
+:root[data-amb="espacio"] body{background:radial-gradient(1px 1px at 10% 20%,#fff,transparent),radial-gradient(1px 1px at 30% 70%,#fff,transparent),radial-gradient(1.5px 1.5px at 60% 40%,#fff,transparent),radial-gradient(1px 1px at 80% 85%,#fff,transparent),radial-gradient(1px 1px at 90% 10%,#fff,transparent),radial-gradient(ellipse at 70% 20%,rgba(120,60,200,.35),transparent 50%),radial-gradient(ellipse at 20% 90%,rgba(0,150,200,.25),transparent 50%),#04030c;background-size:180px 180px,220px 220px,260px 260px,200px 200px,240px 240px,auto,auto,auto}
+.amb-vip{--f1:#2e2e2e;--f2:#181818;--f3:#060606;--r1:#6b4422;--r2:#2a170a;--ring:rgba(233,201,120,.9);
+  --feltimg:repeating-linear-gradient(90deg,rgba(233,201,120,.07) 0 1px,transparent 1px 18px)}
+:root[data-amb="vip"] body{background:repeating-linear-gradient(135deg,rgba(233,201,120,.05) 0 1px,transparent 1px 14px),radial-gradient(ellipse at 50% -10%,#3a2a12,transparent 60%),#090705}
+.amb-saloon{--f1:#7d9442;--f2:#58692b;--f3:#2c3614;--r1:#6e4321;--r2:#2e1a0b;--ring:rgba(245,222,179,.55)}
+:root[data-amb="saloon"] body{background:repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 2px,transparent 2px 46px),repeating-linear-gradient(90deg,#5a3a1e 0 160px,#4d3119 160px 320px),#4d3119}
+.amb-clasico{}
+
+/* ================= BARAJAS ================= */
+.deck-cuatro .cd.s-d{color:#1565c0}.deck-cuatro .cd.s-c{color:#2e7d32}
+.deck-cuatro .cd{--back:repeating-linear-gradient(45deg,#0d3b78 0 4px,#1565c0 4px 8px)}
+.deck-jumbo .cd b{left:50%;top:30%;transform:translate(-50%,-50%);font-size:calc(var(--w)*.62)}
+.deck-jumbo .cd i{display:none}.deck-jumbo .cd em{right:50%;transform:translateX(50%);bottom:4%;font-size:calc(var(--w)*.42)}
+.deck-jumbo .cd.xs b{font-size:13px;left:50%;top:34%}.deck-jumbo .cd.xs em{font-size:9px}
+.deck-jumbo .cd{--back:repeating-linear-gradient(0deg,#263238 0 5px,#37474f 5px 10px)}
+.deck-dorada .cd{--cbg:linear-gradient(180deg,#1d1d1d,#090909);--cink:#e9c46a;--cred:#ff8a72;--cedge:#c99532;
+  --back:repeating-linear-gradient(45deg,#0d0d0d 0 4px,#2a2208 4px 8px);--backb:#c99532;border:1px solid #c99532}
+.deck-vintage .cd{--cbg:linear-gradient(180deg,#f6ead0,#e3cd9e);--cink:#3a2a1a;--cred:#8b2a1a;--cedge:#b39a6a;--cfont:Georgia,"Times New Roman",serif;
+  --back:repeating-linear-gradient(45deg,#2d4a3a 0 4px,#3d6250 4px 8px);--backb:#e3cd9e}
+.deck-vintage .cd b{font-style:italic}
+.deck-neon .cd{--cbg:radial-gradient(circle at 50% 30%,#15152a,#07070f);--cink:#7df9ff;--cred:#ff4fd8;--cedge:#7df9ff;
+  --back:repeating-linear-gradient(45deg,#14002a 0 4px,#2a0055 4px 8px);--backb:#ff4fd8;text-shadow:0 0 6px currentColor;border:1px solid currentColor}
+.deck-mexicana .cd{--cbg:linear-gradient(#fffaf0,#fffaf0) padding-box,repeating-linear-gradient(45deg,#e91e63 0 5px,#ffb300 5px 10px,#1d4e9e 10px 15px) border-box;border:3px solid transparent;
+  --cink:#1d2b4f;--cred:#c2185b;--cfont:"Cinzel",Georgia,serif;
+  --back:radial-gradient(circle at 50% 50%,#1d4e9e 0 22%,transparent 23%) 0 0/12px 12px,radial-gradient(circle,#fff 0 30%,#cfe0ff 31%) 0 0/12px 12px;--backb:#1d4e9e}
+.deck-mexicana .cd.xs{border-width:2px}
+
+/* ================= Selector de estilo ================= */
+.sgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.stile{position:relative;background:rgba(255,255,255,.04);border:1.5px solid var(--line);border-radius:12px;padding:8px;color:var(--ink);font:700 13px var(--body);cursor:pointer;display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center}
+.stile.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.stile:disabled{cursor:default;opacity:.85}
+.mini{width:100%;aspect-ratio:2/1;border-radius:999px;padding:6%;background:var(--railimg,none),linear-gradient(160deg,var(--r1),var(--r2))}
+.mini i{display:block;width:100%;height:100%;border-radius:999px;background:var(--feltimg,none),radial-gradient(ellipse at 50% 40%,var(--f1),var(--f2) 45%,var(--f3));box-shadow:inset 0 0 0 2px var(--ring)}
+.minicards{display:flex;gap:3px;justify-content:center}
+.minicards .cd{--w:30px}
+.waitl{font-size:12px;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){.tbar,.mtab.turn{animation:none}}
 @media (max-width:360px){.seat{width:26%}.pinfo b,.stk{font-size:11px}}
 </style>
@@ -210,9 +266,9 @@ input.code{text-transform:uppercase;letter-spacing:.3em;text-align:center;font-s
 const RANKS='23456789TJQKA', SUITS='shdc';
 const HOOK={before:null,after:null};
 const VAR={
-  holdem:{name:"Texas Hold'em",short:"Hold'em",hole:2,board:true,max:9,limit:'nl',desc:'2 cartas tuyas + 5 comunitarias. La más jugada del mundo.'},
-  omaha:{name:'Omaha',short:'Omaha',hole:4,board:true,omaha:true,max:9,limit:'pl',desc:'4 cartas tuyas; usas exactamente 2 de ellas y 3 de la mesa.'},
-  short:{name:'Short Deck (6+)',short:'6+',hole:2,board:true,shortDeck:true,max:9,limit:'nl',desc:'Baraja de 36 cartas (sin 2 al 5). El color le gana al full.'},
+  holdem:{name:"Texas Hold'em",short:"Hold'em",hole:2,board:true,max:10,limit:'nl',desc:'2 cartas tuyas + 5 comunitarias. La más jugada del mundo.'},
+  omaha:{name:'Omaha',short:'Omaha',hole:4,board:true,omaha:true,max:10,limit:'pl',desc:'4 cartas tuyas; usas exactamente 2 de ellas y 3 de la mesa.'},
+  short:{name:'Short Deck (6+)',short:'6+',hole:2,board:true,shortDeck:true,max:10,limit:'nl',desc:'Baraja de 36 cartas (sin 2 al 5). El color le gana al full.'},
   draw5:{name:'Póker cerrado',short:'Cerrado',hole:5,draw:true,max:6,limit:'nl',desc:'5 cartas tapadas, una ronda para cambiar cartas y otra de apuestas.'},
   stud7:{name:'Stud de 7 cartas',short:'Stud',stud:true,max:7,limit:'fl',desc:'Sin cartas comunitarias: 3 tapadas y 4 destapadas por jugador.'},
 };
@@ -512,7 +568,10 @@ function tickTable(t,now,isOn){
 }
 
 /* ================= CLUB, CONEXIÓN Y PANTALLAS ================= */
-const PREFIX='pokerclub-kv-', ALPH='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', MAX_CLUB=40, MAX_TABLES=12;
+const PREFIX='pokerclub-kv-', ALPH='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', MAX_CLUB=80, MAX_TABLES=30;
+const AMBS={clasico:['Casino clásico','🎰'],vegas:['Las Vegas','🌃'],monaco:['Montecarlo','🛥️'],cantina:['Cantina mexicana','🌵'],playa:['Playa','🏖️'],espacio:['Espacio','🚀'],vip:['Club privado','🎩'],saloon:['Viejo Oeste','🤠']};
+const DECKS={clasica:'Clásica',cuatro:'4 colores',jumbo:'Índice grande',dorada:'Negra y oro',vintage:'Vintage',neon:'Neón',mexicana:'Mexicana'};
+const okAmb=a=>AMBS[a]?a:'clasico', okDeck=d=>DECKS[d]?d:'clasica';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt=n=>(+n||0).toLocaleString('es-MX');
@@ -608,6 +667,7 @@ function startTicker(){
   tickIv=setInterval(()=>{if(!C)return;const now=Date.now();let ch=false;
     if(now-lastBeat>3000){lastBeat=now;Object.values(conns).forEach(c=>{if(now-(c.lastSeen||0)>16000){try{c.close()}catch(_){}dropConn(c)}})}
     (C.tours||[]).forEach(T=>{if(tourTick(T,now))ch=true});
+    C.tables.forEach(t=>{if(!t.tour&&fillFromWait(t))ch=true});
     [...C.tables].forEach(t=>{try{if(tickTable(t,now,pid=>pid==='p0'||isOnline(pid)))ch=true}catch(e){console.error(e)}});
     if(ch)commit();},350);
 }
@@ -624,7 +684,7 @@ function handle(pid,a){
       const max=Math.max(2,Math.min(VAR[v].max,+a.max||VAR[v].max));
       C.tables.push({id:++C.tn,name:clean(a.name,22)||('Mesa '+(C.tn)),variant:v,limit:lim,sb:Math.max(1,Math.floor(bb/2)),bb,
         ante:+a.ante>0?Math.max(1,Math.round(bb*(+a.ante)/100)):(v==='stud7'?Math.max(1,Math.round(bb/5)):0),
-        buyin:buy,timer:[0,20,30,45,60].includes(+a.timer)?+a.timer:30,rebuy:a.rebuy!==false,
+        buyin:buy,timer:[0,20,30,45,60].includes(+a.timer)?+a.timer:30,rebuy:a.rebuy!==false,amb:okAmb(a.amb),deck:okDeck(a.deck),wait:[],
         seats:Array(max).fill(null),ledger:{},btn:null,handNo:0,log:[],chat:[],hand:null,by:pid,waitUntil:null});
       break;}
     case 'close':if(t&&(t.by===pid||pid==='p0')&&t.seats.every(s=>!s))C.tables=C.tables.filter(x=>x!==t);break;
@@ -647,16 +707,23 @@ function handle(pid,a){
       s.sitOut=false;s.timeouts=0;const L=t.ledger[target]||(t.ledger[target]={buy:0,out:0});L.buy+=amt;
       pushLog(t,(target===pid?pname(pid)+' agregó ':pname(pid)+' le dio ')+fmt(amt)+' fichas'+(target===pid?'':' a '+pname(target))+(s.pending?' (al terminar la mano)':''));
       break;}
+    case 'look':{if(!t)return;const admin=pid==='p0'||t.by===pid;if(!admin&&seatOf(t,pid)<0)return;
+      if(a.amb){t.amb=okAmb(a.amb);pushLog(t,'🎨 '+pname(pid)+' cambió el ambiente a '+AMBS[t.amb][0])}
+      if(a.deck){t.deck=okDeck(a.deck);pushLog(t,'🃏 '+pname(pid)+' cambió las cartas a '+DECKS[t.deck])}break;}
+    case 'wait':{if(!t||t.tour||P.house||seatOf(t,pid)>=0)return;t.wait=t.wait||[];
+      if(t.wait.includes(pid))t.wait=t.wait.filter(x=>x!==pid);else{if(t.seats.some(x=>!x))return;t.wait.push(pid)}break;}
     case 'tmk':{
       if((C.tours||[]).filter(T=>T.status!=='done').length>=4)return;
       const v=VAR[a.variant]?a.variant:'holdem';
       const T={id:++C.trn,name:clean(a.name,22)||('Torneo '+C.trn),variant:v,limit:LIMITS[a.limit]?a.limit:VAR[v].limit,
         stack:[1500,3000,5000,10000].includes(+a.stack)?+a.stack:3000,levelMin:[3,5,8,10,15,20].includes(+a.levelMin)?+a.levelMin:10,
         timer:[0,20,30,45,60].includes(+a.timer)?+a.timer:30,rebuyLv:[0,2,4].includes(+a.rebuyLv)?+a.rebuyLv:0,
-        seats:Math.max(2,Math.min(VAR[v].max,+a.seats||VAR[v].max)),ante:!!a.ante,by:pid,status:'reg',reg:[],tables:[],places:[],level:0,levelStart:0,paused:false,pausedAt:0,entries:{},total:0,startedAt:0};
+        seats:Math.max(2,Math.min(VAR[v].max,+a.seats||VAR[v].max)),ante:!!a.ante,amb:okAmb(a.amb||'vip'),deck:okDeck(a.deck),lateLv:[0,2,4].includes(+a.lateLv)?+a.lateLv:0,by:pid,status:'reg',reg:[],tables:[],places:[],level:0,levelStart:0,paused:false,pausedAt:0,entries:{},total:0,startedAt:0};
       if(!P.house)T.reg.push(pid);
       C.tours.push(T);break;}
-    case 'treg':{const T=C.tours.find(x=>x.id===a.trid);if(!T||T.status!=='reg'||P.house)return;
+    case 'treg':{const T=C.tours.find(x=>x.id===a.trid);if(!T||P.house)return;
+      if(T.status==='run'){if(T.level>=(T.lateLv||0)||T.reg.includes(pid)||T.places.some(x=>x.pid===pid))return;tourLateAdd(T,pid);break}
+      if(T.status!=='reg')return;
       if(T.reg.includes(pid))T.reg=T.reg.filter(x=>x!==pid);else{if(T.reg.length>=MAX_CLUB)return;T.reg.push(pid)}break;}
     case 'tcancel':{const T=C.tours.find(x=>x.id===a.trid);if(!T||T.status!=='reg'||(T.by!==pid&&pid!=='p0'))return;C.tours=C.tours.filter(x=>x!==T);break;}
     case 'tstart':{const T=C.tours.find(x=>x.id===a.trid);if(!T||T.status!=='reg'||(T.by!==pid&&pid!=='p0')||T.reg.length<2)return;tourStart(T);break;}
@@ -689,7 +756,7 @@ function tourStart(T){
   T.status='run';T.level=0;T.levelStart=now;T.startedAt=now;T.total=n;T.places=[];T.tables=[];
   const b=tourBlinds(T,0);
   for(let j=0;j<k;j++){
-    const t={id:++C.tn,name:T.name+(k>1?' · Mesa '+(j+1):''),variant:T.variant,limit:T.limit,sb:b.sb,bb:b.bb,ante:b.ante,buyin:T.stack,timer:T.timer,rebuy:false,
+    const t={id:++C.tn,amb:T.amb||'vip',deck:T.deck||'clasica',wait:[],name:T.name+(k>1?' · Mesa '+(j+1):''),variant:T.variant,limit:T.limit,sb:b.sb,bb:b.bb,ante:b.ante,buyin:T.stack,timer:T.timer,rebuy:false,
       seats:Array(T.seats).fill(null),ledger:{},btn:null,handNo:0,log:[],chat:[],hand:null,by:T.by,waitUntil:null,tour:T.id,hold:false};
     C.tables.push(t);T.tables.push(t.id);
   }
@@ -746,6 +813,29 @@ function tourBalance(T,t){
     const cand=t.seats.map((x,i)=>x&&i!==t.btn?i:-1).filter(i=>i>=0);const i=cand[Math.floor(Math.random()*cand.length)];
     const sp=i!=null?t.seats[i]:null;if(sp&&placeIn(sp,minO)){pushLog(t,'⬅️ '+pname(sp.pid)+' se cambia de mesa para equilibrar');t.seats[i]=null}
   }
+}
+
+
+function fillFromWait(t){
+  if(!t.wait||!t.wait.length)return false;let ch=false;
+  t.wait=t.wait.filter(pid=>C.players[pid]&&seatOf(t,pid)<0);
+  while(t.wait.length&&t.seats.some(x=>!x)){
+    const idx=t.wait.findIndex(pid=>isOnline(pid)||pid==='p0');if(idx<0)break;
+    const pid=t.wait.splice(idx,1)[0], free=t.seats.map((x,q)=>x?-1:q).filter(q=>q>=0), q=free[Math.floor(Math.random()*free.length)];
+    t.seats[q]=seatBlank(pid,t.buyin);const L=t.ledger[pid]||(t.ledger[pid]={buy:0,out:0});L.buy+=t.buyin;
+    pushLog(t,'🪑 '+pname(pid)+' entra desde la lista de espera');ch=true;
+  }
+  return ch;
+}
+function tourLateAdd(T,pid){
+  let tabs=tourTables(T).filter(x=>x.seats.some(s=>!s)).sort((a,b)=>a.seats.filter(Boolean).length-b.seats.filter(Boolean).length);
+  let t=tabs[0];
+  if(!t){const b=tourBlinds(T,T.level),n=tourTables(T).length+1;
+    t={id:++C.tn,amb:T.amb||'vip',deck:T.deck||'clasica',wait:[],name:T.name+' · Mesa '+n,variant:T.variant,limit:T.limit,sb:b.sb,bb:b.bb,ante:b.ante,buyin:T.stack,timer:T.timer,rebuy:false,
+      seats:Array(T.seats).fill(null),ledger:{},btn:null,handNo:0,log:[],chat:[],hand:null,by:T.by,waitUntil:null,tour:T.id,hold:T.paused};
+    C.tables.push(t);T.tables.push(t.id)}
+  const free=t.seats.map((x,q)=>x?-1:q).filter(q=>q>=0);t.seats[free[Math.floor(Math.random()*free.length)]]=seatBlank(pid,T.stack);
+  T.reg.push(pid);T.entries[pid]=1;T.total++;pushLog(t,'✍️ '+pname(pid)+' entra al torneo (inscripción tardía)');
 }
 
 /* ---------- Invitado ---------- */
@@ -806,7 +896,7 @@ function resetAll(){
 
 /* ---------- Pantalla inicial ---------- */
 function renderHome(){
-  document.documentElement.dataset.scr='home';
+  document.documentElement.dataset.scr='home';delete document.documentElement.dataset.amb;
   const saved=store.get('pk_host'), canResume=saved&&saved.C&&Date.now()-saved.at<24*3600e3;
   view.innerHTML=`<div class="home">
     <div class="hero"><div class="suits"><span>♠</span><span class="r">♥</span><span>♣</span><span class="r">♦</span></div>
@@ -847,7 +937,7 @@ function myTablesBar(){
 const tableTag=t=>`${VAR[t.variant].short} · ${LIM_SHORT[t.limit]} · ${fmt(t.sb)}/${fmt(t.bb)}${t.ante?' · ante '+fmt(t.ante):''}`;
 
 function renderLobby(){
-  document.documentElement.dataset.scr='lobby';
+  document.documentElement.dataset.scr='lobby';delete document.documentElement.dataset.amb;
   const players=Object.entries(V.players).filter(([,p])=>!p.house).sort((a,b)=>myNet(b[0])-myNet(a[0]));
   const online=players.filter(p=>p[1].online).length;
   const tables=V.tables.filter(t=>!t.tour).map(t=>{
@@ -856,7 +946,8 @@ function renderLobby(){
     return `<article class="tcard${mine?' mine':''}${myTurnAt(t)?' turn':''}" data-a="open" data-t="${t.id}">
       <div class="tc-top"><b>${esc(t.name)}</b><span class="vbadge v-${t.variant}">${VAR[t.variant].short}</span></div>
       <div class="tc-mid">${LIMITS[t.limit]} · ciegas ${fmt(t.sb)}/${fmt(t.bb)}${t.ante?' · ante '+fmt(t.ante):''} · entrada ${fmt(t.buyin)}</div>
-      <div class="tc-bot"><span class="dots">${t.seats.map(s=>`<i class="${s?'f':''}"></i>`).join('')}</span><span>${seated}/${t.seats.length}</span><span class="muted">${st}</span></div>
+      <div class="tc-bot"><span class="dots">${t.seats.map(s=>`<i class="${s?'f':''}"></i>`).join('')}</span><span>${seated}/${t.seats.length}</span><span class="muted">${st}</span><span title="${esc(AMBS[okAmb(t.amb)][0])}">${AMBS[okAmb(t.amb)][1]}</span></div>
+      ${(t.wait||[]).length?`<div class="waitl">⏳ ${(t.wait||[]).length} en lista de espera</div>`:''}
       ${myTurnAt(t)?'<div class="tc-turn">¡Te toca!</div>':''}
     </article>`}).join('');
   view.innerHTML=`<div class="lobby">
@@ -891,10 +982,14 @@ function createForm(){
       <label class="fld"><span>Tiempo por turno</span><select id="f_timer">${opt([[0,'Sin límite'],[20,'20 s'],[30,'30 s'],[45,'45 s'],[60,'60 s']],d.timer)}</select></label>
       <label class="fld"><span>Ante</span><select id="f_ante">${opt([[0,d.variant==='stud7'?'Normal (20% ciega)':'Sin ante'],[10,'10% de la ciega'],[25,'25% de la ciega']],d.ante)}</select></label>
     </div>
+    <div class="grid2">
+      <label class="fld"><span>Ambiente</span><select id="f_amb">${opt(Object.entries(AMBS).map(([k,[n,ic]])=>[k,ic+' '+n]),d.amb||'clasico')}</select></label>
+      <label class="fld"><span>Cartas</span><select id="f_deck">${opt(Object.entries(DECKS),d.deck||'clasica')}</select></label>
+    </div>
     <label class="chk"><input type="checkbox" id="f_rebuy"${d.rebuy?' checked':''}> Permitir recompras al quedarse sin fichas</label>
     <div class="row"><button class="btn ghost" data-a="create">Cancelar</button><button class="btn gold" data-a="mk">Crear mesa</button></div></section>`;
 }
-function readForm(){const d=ui.form;['name','variant','limit','bb','buyBB','max','timer','ante'].forEach(k=>{const e=$('f_'+k);if(e)d[k]=e.value});const r=$('f_rebuy');if(r)d.rebuy=r.checked;return d}
+function readForm(){const d=ui.form;['name','variant','limit','bb','buyBB','max','timer','ante','amb','deck'].forEach(k=>{const e=$('f_'+k);if(e)d[k]=e.value});const r=$('f_rebuy');if(r)d.rebuy=r.checked;return d}
 
 
 /* ---------- Torneos (pantallas) ---------- */
@@ -923,6 +1018,8 @@ function tourCard(T){
       <div class="tstats"><div><small>Nivel</small><b>${lv+1}</b></div><div><small>Ciegas</small><b>${tBlindsTxt(T,lv)}</b></div><div><small>${T.paused?'En pausa':'Sube en'}</small><b data-lvl="${T.id}">${T.paused?'⏸':mmss(levelLeft(T))}</b></div><div><small>Quedan</small><b>${alive.length}/${T.total}</b></div></div>
       <div class="tc-mid">Siguiente: ${tBlindsTxt(T,lv+1)} · promedio ${fmt(avg)} fichas</div>
       ${myPlace?`<p class="place">Quedaste en el lugar #${myPlace.place}</p>`:''}
+      ${T.lateLv&&lv<T.lateLv?`<div class="waitl">✍️ Inscripción tardía abierta hasta el nivel ${T.lateLv}</div>`:''}
+      ${T.lateLv&&lv<T.lateLv&&!T.reg.includes(me)&&!myPlace&&V.players[me]&&!V.players[me].house?`<button class="btn gold" data-a="treg" data-tr="${T.id}">✍️ Entrar al torneo (${fmt(T.stack)} fichas)</button>`:''}
       <div class="row">${myTab?`<button class="btn gold" data-a="open" data-t="${myTab.id}">Ir a mi mesa</button>`:tourTablesV(T).map((t,k)=>`<button class="btn ghost" data-a="open" data-t="${t.id}">Ver mesa ${k+1}</button>`).join('')}
         ${admin?`<button class="btn sm ghost" data-a="tpause" data-tr="${T.id}">${T.paused?'▶️ Reanudar':'⏸ Pausar'}</button>`:''}</div></article>`;
   }
@@ -945,16 +1042,21 @@ function tourForm(){
       <label class="fld"><span>Recompras</span><select id="g_rebuyLv">${opt([[0,'No (eliminación)'],[2,'Primeros 2 niveles'],[4,'Primeros 4 niveles']],d.rebuyLv)}</select></label>
       <label class="fld"><span>Jugadores por mesa</span><select id="g_seats">${opt(Array.from({length:VAR[d.variant].max-1},(_,k)=>[k+2,String(k+2)]),Math.min(d.seats,VAR[d.variant].max))}</select></label>
     </div>
+    <div class="grid2">
+      <label class="fld"><span>Inscripción tardía</span><select id="g_lateLv">${opt([[0,'No'],[2,'Hasta el nivel 2'],[4,'Hasta el nivel 4']],d.lateLv||0)}</select></label>
+      <label class="fld"><span>Ambiente</span><select id="g_amb">${opt(Object.entries(AMBS).map(([k,[n,ic]])=>[k,ic+' '+n]),d.amb||'vip')}</select></label>
+      <label class="fld"><span>Cartas</span><select id="g_deck">${opt(Object.entries(DECKS),d.deck||'clasica')}</select></label>
+    </div>
     <label class="chk"><input type="checkbox" id="g_ante"${d.ante?' checked':''}> Ante desde el nivel 4</label>
     <p class="muted small">Ciegas iniciales ${tBlindsTxt({stack:+d.stack,variant:d.variant,ante:d.ante},0)}; suben así: ${[1,2,3,4,5].map(l=>tBlindsTxt({stack:+d.stack,variant:d.variant,ante:false},l)).join(' → ')}…</p>
     <div class="row"><button class="btn ghost" data-a="tcreate">Cancelar</button><button class="btn gold" data-a="tmk">Crear torneo</button></div></section>`;
 }
-function readTForm(){const d=ui.tform;['name','variant','limit','stack','levelMin','timer','rebuyLv','seats'].forEach(k=>{const e=$('g_'+k);if(e)d[k]=e.value});const a=$('g_ante');if(a)d.ante=a.checked;return d}
+function readTForm(){const d=ui.tform;['name','variant','limit','stack','levelMin','timer','rebuyLv','seats','lateLv','amb','deck'].forEach(k=>{const e=$('g_'+k);if(e)d[k]=e.value});const a=$('g_ante');if(a)d.ante=a.checked;return d}
 setInterval(()=>{if(!V)return;document.querySelectorAll('[data-lvl]').forEach(el=>{const T=(V.tours||[]).find(x=>x.id===+el.dataset.lvl);if(T&&!T.paused)el.textContent=mmss(levelLeft(T))})},1000);
 
 /* ---------- Mesa ---------- */
 const SUITC={s:'♠',h:'♥',d:'♦',c:'♣'};
-const cardH=(c,cls='')=>c?`<span class="cd ${cls}${'hd'.includes(c[1])?' red':''}"><b>${c[0]==='T'?'10':c[0]}</b><i>${SUITC[c[1]]}</i><em>${SUITC[c[1]]}</em></span>`:`<span class="cd back ${cls}"></span>`;
+const cardH=(c,cls='')=>c?`<span class="cd s-${c[1]} ${cls}${'hd'.includes(c[1])?' red':''}"><b>${c[0]==='T'?'10':c[0]}</b><i>${SUITC[c[1]]}</i><em>${SUITC[c[1]]}</em></span>`:`<span class="cd back ${cls}"></span>`;
 const hue=pid=>{let h=7;for(const ch of pid)h=(h*31+ch.charCodeAt(0))%360;return h};
 const initials=n=>String(n||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
 function renderTable(){
@@ -1002,15 +1104,16 @@ function renderTable(){
     const seated=t.seats.filter(s=>s&&s.stack>0&&!s.sitOut).length;
     center=`<div class="tcenter"><div class="waitmsg">${seated>=2?'La siguiente mano empieza en un momento…':'Esperando jugadores ('+seated+'/2)'}<small>${esc(tableTag(t))}</small></div></div>`;
   }
-  view.innerHTML=`<div class="tablescr">
-    <header class="thead"><button class="btn sm ghost" data-a="lobby">← Mesas</button><div class="tname"><b>${esc(t.name)}</b><small>${esc(VAR[t.variant].name)} · ${LIMITS[t.limit]} · ${fmt(t.sb)}/${fmt(t.bb)}</small></div><button class="btn sm ghost" data-a="rules">📖</button></header>
+  document.documentElement.dataset.amb=okAmb(t.amb);
+  view.innerHTML=`<div class="tablescr amb-${okAmb(t.amb)} deck-${okDeck(t.deck)}">
+    <header class="thead"><button class="btn sm ghost" data-a="lobby">← Mesas</button><div class="tname"><b>${esc(t.name)}</b><small>${esc(VAR[t.variant].name)} · ${LIMITS[t.limit]} · ${fmt(t.sb)}/${fmt(t.bb)}</small></div><button class="btn sm ghost" data-a="style" aria-label="Estilo de la mesa">🎨</button><button class="btn sm ghost" data-a="rules" aria-label="Reglas">📖</button></header>
     ${myTablesBar()}
     ${t.tour?tourBar(t):''}
     <div class="felt-wrap"><div class="rail"><div class="felt"><span class="logo">♠ ${esc(V.code)}</span></div></div>${center}${betsH}${seatsH}</div>
     ${myPanel(t,myI,mySeat)}
     ${chatHtml(t)}
     <div class="loglist">${t.log.slice(-4).reverse().map(l=>`<div>#${l.n} · ${esc(l.txt)}</div>`).join('')}</div>
-  </div>${ui.rules?rulesHtml():''}`;
+  </div>${ui.rules?rulesHtml():''}${ui.style?styleHtml(t):''}`;
   const rz=$('rz');
   if(rz){
     const upd=()=>{ui.raise=+rz.value;const l=$('rzv');if(l)l.textContent=fmt(rz.value)};
@@ -1026,6 +1129,15 @@ function tourBar(t){
   const alive=tourAliveV(T).length, myPlace=T.places.find(x=>x.pid===me);
   if(T.status==='done'){const w=T.places.find(x=>x.place===1);return `<div class="tbarx done">🏆 ${esc(T.name)} terminó · gana <b>${esc(V.players[w?.pid]?.name||'—')}</b>${myPlace?' · tú quedaste #'+myPlace.place:''}</div>`}
   return `<div class="tbarx">🏆 Nivel ${T.level+1} · ${tBlindsTxt(T,T.level)} · ${T.paused?'⏸ En pausa':'sube en <b data-lvl="'+T.id+'">'+mmss(levelLeft(T))+'</b>'} · quedan ${alive}/${T.total}${myPlace?` · <span class="place">Quedaste #${myPlace.place}</span>`:''}</div>`;
+}
+function styleHtml(t){
+  const can=isHost||t.by===me||t.seats.some(s=>s&&s.pid===me);
+  const ex=['As','Kh','Qd','Jc'];
+  return `<div class="modal"><div class="mbox"><header><h2>🎨 Estilo de la mesa</h2><button class="btn sm ghost" data-a="closeStyle">Listo</button></header>
+    <div class="rules">${can?'<p class="muted">Lo que elijas lo ven todos en esta mesa.</p>':'<p class="muted">Sólo quienes están sentados en la mesa pueden cambiar el estilo.</p>'}
+    <h3>Ambiente</h3><div class="sgrid">${Object.entries(AMBS).map(([k,[n,ic]])=>`<button class="stile amb amb-${k}${okAmb(t.amb)===k?' on':''}" data-a="look" data-amb="${k}" ${can?'':'disabled'}><span class="mini"><i></i></span>${ic} ${n}</button>`).join('')}</div>
+    <h3>Cartas</h3><div class="sgrid">${Object.entries(DECKS).map(([k,n])=>`<button class="stile deck-${k}${okDeck(t.deck)===k?' on':''}" data-a="look" data-deck="${k}" ${can?'':'disabled'}><span class="minicards">${ex.map(c=>cardH(c)).join('')}${cardH(null)}</span>${n}</button>`).join('')}</div>
+    </div></div></div>`;
 }
 function isAdmin(t){if(isHost)return true;if(t.by===me)return true;const T=t.tour&&(V.tours||[]).find(x=>x.id===t.tour);return !!(T&&T.by===me)}
 function adminPanel(t){
@@ -1044,6 +1156,8 @@ function myPanel(t,i,s){
     const free=t.seats.some(x=>!x);
     const house=V.players[me]&&V.players[me].house;
     return `<section class="mypanel"><p class="muted center">${t.tour?'Estás mirando esta mesa del torneo.':house?'Modo mesa: este dispositivo muestra la mesa.':free?'Estás mirando. Toca “Sentarme” en un asiento libre para jugar con '+fmt(t.buyin)+' fichas.':'La mesa está llena; puedes mirar.'}</p>
+      ${!t.tour&&!free&&!house?`<button class="btn ${(t.wait||[]).includes(me)?'ghost':'gold'}" data-a="wait">${(t.wait||[]).includes(me)?'Salir de la lista de espera (lugar '+((t.wait||[]).indexOf(me)+1)+')':'Anotarme en la lista de espera'}</button>`:''}
+      ${(t.wait||[]).length?`<p class="waitl center">Lista de espera: ${(t.wait||[]).map(p=>esc(V.players[p]?.name||'?')).join(', ')}</p>`:''}
       ${adminPanel(t)}
       ${!t.tour&&t.seats.every(x=>!x)&&(t.by===me||isHost)?'<button class="btn ghost" data-a="closeT">Cerrar esta mesa</button>':''}</section>`;
   }
@@ -1133,6 +1247,15 @@ function clickAct(a,b){
       else navigator.clipboard.writeText(url).then(()=>{b.textContent='Enlace copiado ✓'},()=>{b.textContent=url});return}
     case 'tab':ui.tab=b.dataset.v;return render();
     case 'tcreate':ui.tcreate=!ui.tcreate;return render();
+    case 'style':ui.style=true;return render();
+    case 'closeStyle':ui.style=false;return render();
+    case 'look':return send({k:'look',tid:t.id,amb:b.dataset.amb,deck:b.dataset.deck});
+    case 'wait':return send({k:'wait',tid:t.id});
+    case 'look':{if(!t)return;const admin=pid==='p0'||t.by===pid;if(!admin&&seatOf(t,pid)<0)return;
+      if(a.amb){t.amb=okAmb(a.amb);pushLog(t,'🎨 '+pname(pid)+' cambió el ambiente a '+AMBS[t.amb][0])}
+      if(a.deck){t.deck=okDeck(a.deck);pushLog(t,'🃏 '+pname(pid)+' cambió las cartas a '+DECKS[t.deck])}break;}
+    case 'wait':{if(!t||t.tour||P.house||seatOf(t,pid)>=0)return;t.wait=t.wait||[];
+      if(t.wait.includes(pid))t.wait=t.wait.filter(x=>x!==pid);else{if(t.seats.some(x=>!x))return;t.wait.push(pid)}break;}
     case 'tmk':{const d=readTForm();send({k:'tmk',...d});ui.tcreate=false;ui.tform=null;return}
     case 'treg':case 'tstart':case 'tcancel':case 'tpause':case 'tclear':return send({k:a,trid:+b.dataset.tr});
     case 'trebuy':return send({k:'trebuy',tid:t.id});
@@ -1142,8 +1265,8 @@ function clickAct(a,b){
     case 'addto':return send({k:'add',tid:t.id,to:b.dataset.p,amt:+b.dataset.amt});
     case 'addcustom':{const amt=Math.floor(+(($('addAmt')||{}).value||0)),to=($('addWho')||{}).value;if(amt>0&&to)send({k:'add',tid:t.id,to,amt});return}
     case 'create':ui.create=!ui.create;return render();
-    case 'mk':{const d=readForm();send({k:'mk',...d,bb:+d.bb,buyBB:+d.buyBB,max:+d.max,timer:+d.timer,ante:+d.ante});ui.create=false;ui.form=null;return}
-    case 'open':ui.screen='table';ui.tid=+b.dataset.t;ui.raise=null;ui.drawSel=new Set();ui.addOpen=false;ui.admin=false;window.scrollTo(0,0);return render();
+    case 'mk':{const d=readForm();send({k:'mk',...d,amb:d.amb,deck:d.deck,bb:+d.bb,buyBB:+d.buyBB,max:+d.max,timer:+d.timer,ante:+d.ante});ui.create=false;ui.form=null;return}
+    case 'open':ui.style=false;ui.screen='table';ui.tid=+b.dataset.t;ui.raise=null;ui.drawSel=new Set();ui.addOpen=false;ui.admin=false;window.scrollTo(0,0);return render();
     case 'lobby':ui.screen='lobby';return render();
     case 'rename':{const v=clean(($('renameIn')||{}).value);if(v){myName=v;try{localStorage.setItem('pk_name',v)}catch(_){}send({k:'name',name:v})}return}
     case 'sit':return send({k:'sit',tid:t.id,s:+b.dataset.s});
@@ -1210,6 +1333,7 @@ function rulesHtml(){
   <ul><li>Un club puede tener hasta ${MAX_TABLES} mesas al mismo tiempo, y puedes sentarte en varias; arriba aparecen tus mesas y se marca ⏰ donde te toca.</li>
   <li>Si se acaba tu tiempo de turno: pasas si puedes, si no te retiras. Dos veces seguidas te marcan como ausente.</li>
   <li>Las cartas de los demás no llegan a tu celular hasta el enfrentamiento.</li>
+  <li>Con 🎨 cambias el ambiente de la mesa y el diseño de las cartas. Si una mesa está llena, anótate en la lista de espera y entras solo cuando se libere un lugar.</li>
   <li>Si quien abrió el club cambia de app, el juego se pausa y sigue al regresar; todos se reconectan solos. Para que nunca se pause, abre el club en una compu o tablet en “modo mesa”.</li>
   <li>Se juega con fichas, sin dinero real.</li></ul>
   </div></div></div>`;
